@@ -1,9 +1,11 @@
 #pragma once
 
 #include "range.hpp"
+#ifdef __CUDACC__
 #include <thrust/iterator/zip_iterator.h>
+#else
 #include <boost/iterator/zip_iterator.hpp>
-
+#endif
 namespace topaz {
 
 namespace detail{
