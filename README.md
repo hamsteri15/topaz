@@ -14,3 +14,5 @@ Although, the library is intended to be as dependency-free as possible, the foll
 - [thrust](https://thrust.github.io/) Cuda extensions to the standard library. Required when compiled with nvcc.
 
 
+## Credits
+topaz is adapted from the [newton](https://github.com/jaredhoberock/newton) by Jared Hoberock. 

@@ -48,27 +48,6 @@ public:
 private:
     iterator m_begin, m_end;
 };
-/*
-template <typename Iterator>
-CUDA_HOSTDEV auto begin(const Range<Iterator>& rng) {
-    return rng.begin();
-}
-
-template <typename Iterator>
-CUDA_HOSTDEV auto begin(Range<Iterator>& rng) {
-    return rng.begin();
-}
-
-template <typename Iterator>
-CUDA_HOSTDEV auto end(const Range<Iterator>& rng) {
-    return rng.end();
-}
-
-template <typename Iterator>
-CUDA_HOSTDEV auto end(Range<Iterator>& rng) {
-    return rng.end();
-}
-*/
 
 
 template <typename Iterator>
