@@ -13,3 +13,4 @@
 #include "zip.hpp"
 #include "transform.hpp"
 #include "numeric_array.hpp"
+#include "numeric_soa.hpp"

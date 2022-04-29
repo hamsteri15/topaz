@@ -26,11 +26,8 @@ struct ApplyBinaryOp {
 
     template <typename Tuple>
     inline CUDA_HOSTDEV auto operator()(const Tuple& t) const {
-        #ifdef __CUDACC__
-        return op(thrust::get<0>(t), thrust::get<1>(t));
-        #else
-        return op(boost::get<0>(t), boost::get<1>(t));
-        #endif
+
+        return op(get<0>(t), get<1>(t));
     }
 };
 

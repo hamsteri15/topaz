@@ -147,6 +147,8 @@ struct Plus{
     T operator()( const T& lhs, const T& rhs ) const {return lhs + rhs;}
 };
 
+
+
 template<class T>
 struct Minus{
     inline CUDA_HOSTDEV

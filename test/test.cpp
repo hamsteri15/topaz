@@ -13,6 +13,9 @@ using vector_t = thrust::device_vector<T>;
 template<class T>
 using NVec_t = topaz::NumericArray<T, thrust::device_malloc_allocator<T>>;
 
+template<size_t N, class T>
+using NSoa_t = topaz::NumericSoa<N, T, thrust::device_malloc_allocator<T>>;
+
 #else
 #include <vector>
 template<class T>
@@ -20,6 +23,10 @@ using vector_t = std::vector<T>;
 
 template<class T>
 using NVec_t = topaz::NumericArray<T, std::allocator<T>>;
+
+template<size_t N, class T>
+using NSoa_t = topaz::NumericSoa<N, T, std::allocator<T>>;
+
 #endif
 
 TEST_CASE("Range"){
@@ -295,6 +302,83 @@ TEST_CASE("NumericArray"){
         auto t2 = t1 + v1;
         CHECK(std::vector<int>{t2.begin(), t2.end()} == std::vector<int>{6, 9, 12});
 
+
+    }
+
+}
+
+TEST_CASE("NumericSoa"){
+
+
+    using namespace topaz;
+
+    SECTION("Constructors"){
+
+        REQUIRE_NOTHROW(NSoa_t<3, int>());
+        REQUIRE_NOTHROW(NSoa_t<3, int>(50));
+
+    }
+
+    SECTION("begin/end"){
+
+        NSoa_t<3, int> soa(10);
+        auto begin = soa.begin();
+        auto end = soa.end();
+        REQUIRE_NOTHROW(++begin);
+        REQUIRE_NOTHROW(--end);
+
+
+        const NSoa_t<3, int> soa2(10);
+        auto z_begin1 = soa2.zipped_begin();
+        auto z_begin2 = soa.zipped_begin();
+
+
+        CHECK(get<0>(*z_begin1) == 0);
+        CHECK(get<0>(*z_begin2) == 0);
+
+        auto z_end1 = soa2.zipped_end();
+        auto z_end2 = soa.zipped_end();
+
+        --z_end1;
+        --z_end2;
+
+        CHECK(get<0>(*z_end1) == 0);
+        CHECK(get<0>(*z_end2) == 0);
+
+        for (auto it = soa.zipped_begin(); it != soa.zipped_end(); ++it){
+            *it = adl_make_tuple(1,2,3);
+        }
+
+
+        //CHECK(get<0>(t1) == 0);
+
+
+
+    }
+
+    SECTION("transform"){
+        /*
+        NSoa_t<3, int> soa(10);
+
+
+        auto op = [](Tuple<int, int, int> t) {
+            return adl_make_tuple(1,2,3);
+        };
+
+        auto tra_rng = make_transform_range(soa, op);
+
+        CHECK(get<0>(tra_rng[1]) == 1);
+        CHECK(get<1>(tra_rng[1]) == 2);
+        CHECK(get<2>(tra_rng[1]) == 3);
+        */
+
+    }
+
+    SECTION("arithmetic"){
+        NSoa_t<3, int> s1(10);
+        NSoa_t<3, int> s2(10);
+
+        auto s3 = s1 + s2;
 
     }
 

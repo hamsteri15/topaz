@@ -8,15 +8,15 @@ namespace topaz {
 template <class Range_t>
 inline CUDA_HOSTDEV auto zip(Range_t& rng) {
     using iterator    = decltype(std::begin(rng));
-    using result_type = ZipRange<detail::Tuple<iterator>>;
-    return result_type(detail::make_tuple(rng));
+    using result_type = ZipRange<Tuple<iterator>>;
+    return result_type(adl_make_tuple(rng));
 }
 
 template <class Range_t>
 inline CUDA_HOSTDEV auto zip(const Range_t& rng) {
     using iterator    = decltype(std::begin(rng));
-    using result_type = ZipRange<detail::Tuple<iterator>>;
-    return result_type(detail::make_tuple(rng));
+    using result_type = ZipRange<Tuple<iterator>>;
+    return result_type(adl_make_tuple(rng));
 }
 
 template <class Range1_t, class Range2_t>
