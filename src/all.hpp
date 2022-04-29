@@ -12,4 +12,4 @@
 #include "zip_range.hpp"
 #include "zip.hpp"
 #include "transform.hpp"
-#include "numeric_vector.hpp"
+#include "numeric_array.hpp"

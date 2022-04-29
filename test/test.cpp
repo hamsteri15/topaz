@@ -11,7 +11,7 @@ template<class T>
 using vector_t = thrust::device_vector<T>;
 
 template<class T>
-using NVec_t = topaz::NumericVector<T, thrust::device_malloc_allocator<T>>;
+using NVec_t = topaz::NumericArray<T, thrust::device_malloc_allocator<T>>;
 
 #else
 #include <vector>
@@ -19,7 +19,7 @@ template<class T>
 using vector_t = std::vector<T>;
 
 template<class T>
-using NVec_t = topaz::NumericVector<T, std::allocator<T>>;
+using NVec_t = topaz::NumericArray<T, std::allocator<T>>;
 #endif
 
 TEST_CASE("Range"){
@@ -160,7 +160,7 @@ TEST_CASE("Range"){
 
 
 
-TEST_CASE("NumericVector"){
+TEST_CASE("NumericArray"){
 
 
     using namespace topaz;
