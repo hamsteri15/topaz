@@ -317,6 +317,23 @@ TEST_CASE("NumericSoa"){
         REQUIRE_NOTHROW(NSoa_t<3, int>());
         REQUIRE_NOTHROW(NSoa_t<3, int>(50));
 
+        NVec_t<int> a(10, 1);
+        NVec_t<int> b(10, 2);
+        NVec_t<int> c(7, 3);
+
+        REQUIRE_NOTHROW(NSoa_t<2, int> (std::array<NVec_t<int>, 2>{a,b}));
+        REQUIRE_THROWS(NSoa_t<2, int> (std::array<NVec_t<int>, 2>{a,c}));
+
+        NSoa_t<2, int> soa(std::array<NVec_t<int>, 2>{a,b});
+
+
+        for (auto it = soa.zipped_begin(); it != soa.zipped_end(); ++it){
+            REQUIRE(get<0>(*it) == 1);
+            REQUIRE(get<1>(*it) == 2);
+        }
+
+
+
     }
 
     SECTION("begin/end"){

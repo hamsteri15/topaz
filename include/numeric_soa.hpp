@@ -1,6 +1,7 @@
 #pragma once
 
 #include "numeric_array.hpp"
+#include "copy.hpp"
 #include <array>
 
 namespace topaz {
@@ -27,15 +28,18 @@ public:
     inline explicit NumericSoa(size_type n)
         : m_data(n * N, T(0)) {}
 
-    /*
-    template<class... Ts>
-    inline explicit NumericSoa(size_type n, Ts... ts) :
-    NumericSoa(n)
+
+
+    template<class Range_t>
+    inline NumericSoa(const std::array<Range_t, N>& ranges)
+    : NumericSoa(ranges.front().size())
     {
-        //TODO: get chunks and set one by one, _dont_ use the zip iterator
+        for (size_t i = 0; i < N; ++i){
+            set_chunk(i, ranges[i]);
+        }
     }
 
-    */
+    inline size_type chunk_size() const { return m_data.size() / N; }
 
     inline auto begin() { return m_data.begin(); }
     inline auto begin() const { return m_data.begin(); }
@@ -55,22 +59,47 @@ public:
         return zip_ends(std::make_index_sequence<N>{});
     }
 
+
+    auto get_chunk(size_t I) {
+        //assert(I < N, "Index out of bounds");
+        return slice(m_data, I * chunk_size(), (I + size_type(1)) * chunk_size());
+    }
+
+    auto get_chunk(size_t I) const {
+        //assert(I < N, "Index out of bounds");
+        return slice(m_data, I * chunk_size(), (I + size_type(1)) * chunk_size());
+    }
+
+
+
+
+    template<class Range_t>
+    void set_chunk(size_t i, const Range_t& rng){
+        if (adl_size(rng) != chunk_size()){
+            throw std::runtime_error("Size mismatch error");
+        }
+        auto dest = get_chunk(i);
+        copy(rng, dest);
+
+    }
+
+
+private:
+
+
     template <size_t I>
     auto get_chunk() {
         static_assert(I < N, "Index out of bounds");
-        return slice(m_data, I * chunk_size(), (I + size_t(1)) * chunk_size());
+        return slice(m_data, I * chunk_size(), (I + size_type(1)) * chunk_size());
     }
 
     template <size_t I>
     auto get_chunk() const {
         static_assert(I < N, "Index out of bounds");
-        return slice(m_data, I * chunk_size(), (I + size_t(1)) * chunk_size());
+        return slice(m_data, I * chunk_size(), (I + size_type(1)) * chunk_size());
     }
 
-    inline size_type chunk_size() const { return m_data.size() / N; }
-    inline size_type chunk_size() { return m_data.size() / N; }
 
-private:
     template <size_t... Is>
     inline auto zip_begins(std::index_sequence<Is...>) {
         return detail::make_zip_iterator(

@@ -60,6 +60,7 @@ public:
     template <class Range_t,
               typename = std::enable_if_t<IsRangeOrNumericVector_v<Range_t>>>
     inline NumericArray& operator=(const Range_t& rng) {
+        //TODO: This should probably be calling some parallel algorithm for std C++17
         this->assign(adl_begin(rng), adl_end(rng));
         return *this;
     }
