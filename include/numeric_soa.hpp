@@ -28,7 +28,7 @@ public:
     inline explicit NumericSoa(size_type n)
         : m_data(n * N, T(0)) {}
 
-
+    inline explicit NumericSoa(const array_type& other) : m_data(other) {}
 
     template<class Range_t>
     inline NumericSoa(const std::array<Range_t, N>& ranges)
@@ -70,12 +70,18 @@ public:
         return slice(m_data, I * chunk_size(), (I + size_type(1)) * chunk_size());
     }
 
+    auto get_all_chunks() const {
+        return get_all_chunks_helper(std::make_index_sequence<N>{});
+    }
 
+    auto get_all_chunks() {
+        return get_all_chunks_helper(std::make_index_sequence<N>{});
+    }
 
 
     template<class Range_t>
     void set_chunk(size_t i, const Range_t& rng){
-        if (adl_size(rng) != chunk_size()){
+        if (size_type(adl_size(rng)) != chunk_size()){
             throw std::runtime_error("Size mismatch error");
         }
         auto dest = get_chunk(i);
@@ -86,6 +92,16 @@ public:
 
 private:
 
+
+    template<size_t... Is>
+    auto get_all_chunks_helper(std::index_sequence<Is...>){
+        return adl_make_tuple(get_chunk<Is>()...);
+    }
+    
+    template<size_t... Is>
+    auto get_all_chunks_helper(std::index_sequence<Is...>) const{
+        return adl_make_tuple(get_chunk<Is>()...);
+    }
 
     template <size_t I>
     auto get_chunk() {

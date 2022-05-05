@@ -373,6 +373,23 @@ TEST_CASE("NumericSoa"){
 
     }
 
+    SECTION("Access"){
+        NSoa_t<3, int> soa(10);
+        for (auto it = soa.zipped_begin(); it != soa.zipped_end(); ++it){
+            *it = adl_make_tuple(1,2,3);
+        }
+        auto tpl = soa.get_all_chunks();
+        auto x = get<0>(tpl);
+        auto y = get<1>(tpl);
+        auto z = get<2>(tpl);
+        CHECK(x[1] == 1);
+        CHECK(y[1] == 2);
+        CHECK(z[1] == 3);
+
+    }
+
+
+
     SECTION("transform"){
         /*
         NSoa_t<3, int> soa(10);
