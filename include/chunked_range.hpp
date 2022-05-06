@@ -60,9 +60,8 @@ CUDA_HOSTDEV auto make_chunked_range(const Range_t& rng) {
 namespace detail {
 
 template <size_t N, class Iterator, size_t... Is>
-CUDA_HOSTDEV auto
-get_chunks_impl(std::index_sequence<Is...>,
-                const ChunkedRange<N, Iterator>& rng) {
+CUDA_HOSTDEV auto get_chunks_impl(std::index_sequence<Is...>,
+                                  const ChunkedRange<N, Iterator>& rng) {
 
     return adl_make_tuple(get_chunk<Is>(rng)...);
 }
@@ -83,3 +82,5 @@ CUDA_HOSTDEV auto get_chunks(const Range_t& rng) {
     return detail::get_chunks_impl(std::make_index_sequence<N>{},
                                    make_chunked_range<N>(rng));
 }
+
+} // namespace topaz
