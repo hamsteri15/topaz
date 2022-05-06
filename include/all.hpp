@@ -9,6 +9,7 @@
 #include "begin_end.hpp"
 #include "traits.hpp"
 #include "range.hpp"
+#include "chunked_range.hpp"
 #include "zip_range.hpp"
 #include "zip.hpp"
 #include "transform.hpp"

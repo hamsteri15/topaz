@@ -2,7 +2,6 @@
 
 #include "begin_end.hpp"
 
-#include <boost/iterator/iterator_traits.hpp>
 
 namespace topaz {
 

@@ -165,7 +165,59 @@ TEST_CASE("Range"){
 
 }
 
+TEST_CASE("ChunkedRange"){
 
+    using namespace topaz;
+
+    SECTION("make_chunked_range"){
+
+        vector_t<int> v = std::vector<int>{1,2,3,4};
+
+        auto r1 = make_chunked_range<2>(v);
+        //CHECK(r1[0] == 1);
+        CHECK(chunk_size(r1) == 2);
+    
+        //REQUIRE_THROWS(make_chunked_range<3>(v));
+    
+    }
+
+    SECTION("get_chunk"){
+        vector_t<int> v = std::vector<int>{1,2,3,4};
+        auto r1 = make_chunked_range<2>(v);
+        auto c1 = get_chunk<0>(r1);
+        auto c2 = get_chunk<1>(r1);
+        CHECK(size(c1) == 2);
+        CHECK(size(c2) == 2);
+        CHECK(c1[0] == 1);
+        CHECK(c1[1] == 2);
+        CHECK(c2[0] == 3);
+        CHECK(c2[1] == 4);
+    }
+
+
+    SECTION("get_chunks"){
+       const vector_t<int> v = std::vector<int>{1,2,3,4};
+
+        auto tpl = get_chunks<2>(v);
+        auto c1 = get<0>(tpl);
+        auto c2 = get<1>(tpl);
+        CHECK(size(c1) == 2);
+        CHECK(size(c2) == 2);
+        CHECK(c1[0] == 1);
+        CHECK(c1[1] == 2);
+        CHECK(c2[0] == 3);
+        CHECK(c2[1] == 4);
+
+    }
+
+
+    SECTION("free functions"){
+
+    }
+
+
+
+}
 
 TEST_CASE("NumericArray"){
 
