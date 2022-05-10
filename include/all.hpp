@@ -15,3 +15,4 @@
 #include "transform.hpp"
 #include "numeric_array.hpp"
 #include "numeric_soa.hpp"
+#include "arithmetic_ops.hpp"

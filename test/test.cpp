@@ -135,7 +135,7 @@ TEST_CASE("Range"){
 
             SECTION("test 1"){
                 const vector_t<int> v1 = std::vector<int>{1,1,1};
-                auto s1 = transform(v1, v1, Plus<int>{});
+                auto s1 = transform(v1, v1, Plus{});
                 CHECK(std::vector<int>(s1.begin(), s1.end()) == std::vector<int>{2,2,2});
             }
 
@@ -143,15 +143,15 @@ TEST_CASE("Range"){
             SECTION("test 2"){
                 const vector_t<int> v1 = std::vector<int>{1,2,3};
                 const vector_t<int> v2 = std::vector<int>{4,5,6};
-                auto s1 = transform(v1, v2, Plus<int>{});
+                auto s1 = transform(v1, v2, Plus{});
                 CHECK(std::vector<int>(s1.begin(), s1.end()) == std::vector<int>{5,7,9});
             }
 
             SECTION("test 3"){
                 const vector_t<int> v1 = std::vector<int>{1,2,3};
                 const vector_t<int> v2 = std::vector<int>{4,5,6};
-                auto s1 = transform(v1, v2, Plus<int>{}); //{5,7,9}
-                auto s2 = transform(s1, v2, Plus<int>{}); //{9, 12, 15}
+                auto s1 = transform(v1, v2, Plus{}); //{5,7,9}
+                auto s2 = transform(s1, v2, Plus{}); //{9, 12, 15}
                 CHECK(std::vector<int>(s2.begin(), s2.end()) == std::vector<int>{9,12,15});
             }
 
@@ -165,6 +165,16 @@ TEST_CASE("Range"){
 
 }
 
+struct PlusTriplet{
+
+    template<class T>
+    CUDA_HOSTDEV auto operator()(const T& a, const T& b, const T& c) ->decltype(a + b + c)
+    {
+        return a+b+c;
+    }
+
+};
+
 TEST_CASE("ChunkedRange"){
 
     using namespace topaz;
@@ -176,9 +186,9 @@ TEST_CASE("ChunkedRange"){
         auto r1 = make_chunked_range<2>(v);
         //CHECK(r1[0] == 1);
         CHECK(chunk_size(r1) == 2);
-    
+
         //REQUIRE_THROWS(make_chunked_range<3>(v));
-    
+
     }
 
     SECTION("get_chunk"){
@@ -199,21 +209,52 @@ TEST_CASE("ChunkedRange"){
        const vector_t<int> v = std::vector<int>{1,2,3,4};
 
         auto tpl = get_chunks<2>(v);
-        //auto c1 = get<0>(tpl);
-        //auto c2 = get<1>(tpl);
-        //CHECK(size(c1) == 2);
-        //CHECK(size(c2) == 2);
-        //CHECK(c1[0] == 1);
-        //CHECK(c1[1] == 2);
-        //CHECK(c2[0] == 3);
-        //CHECK(c2[1] == 4);
+        auto c1 = get<0>(tpl);
+        auto c2 = get<1>(tpl);
+        CHECK(size(c1) == 2);
+        CHECK(size(c2) == 2);
+        CHECK(c1[0] == 1);
+        CHECK(c1[1] == 2);
+        CHECK(c2[0] == 3);
+        CHECK(c2[1] == 4);
 
     }
 
 
-    SECTION("free functions"){
+
+
+
+    SECTION("chunked_reduce"){
+
+        SECTION("test1"){
+
+            const vector_t<int> v = std::vector<int>{1,2,3,4};
+
+            auto temp = chunked_reduce<2>(v, Plus{});
+
+            CHECK(adl_size(temp) == 2);
+            CHECK(temp[0] == 1 + 3);
+            CHECK(temp[1] == 2 + 4);
+
+        }
+
+        SECTION("test2"){
+
+            const vector_t<int> v = std::vector<int>{1,2,3,4,5,6};
+
+            auto temp = chunked_reduce<3>(v, PlusTriplet{});
+
+            CHECK(adl_size(temp) == 2);
+            CHECK(temp[0] == 1 + 3 + 5);
+            CHECK(temp[1] == 2 + 4 + 6);
+
+        }
+
+
 
     }
+
+
 
 
 
@@ -277,14 +318,14 @@ TEST_CASE("NumericArray"){
             NVec_t<int> v1(10, 1);
             NVec_t<int> v2(10, 3);
 
-            auto s = transform(v1, v2, Plus<int>{});
-            auto ss = transform(s, v2, Plus<int>{});
+            auto s = transform(v1, v2, Plus{});
+            auto ss = transform(s, v2, Plus{});
             CHECK(s[0] == 4);
             CHECK(ss[0] == 7);
         }
 
     }
-    
+
     SECTION("determine_size"){
 
         const NVec_t<int> v1(3, 1);
@@ -298,7 +339,7 @@ TEST_CASE("NumericArray"){
         CHECK(determine_size(v1, t) == 3);
         CHECK(determine_size(t, v1) == 3);
 
-        auto tr = transform(v1, v1, Plus<int>{});
+        auto tr = transform(v1, v1, Plus{});
 
         static_assert(IsRange_v<decltype(tr)>, "Not range");
 
@@ -315,19 +356,19 @@ TEST_CASE("NumericArray"){
         const NVec_t<int> v2{2,2,2};
         int t = 2;
 
-        auto r1 = smart_transform(v1, t, Plus<int>{});
+        auto r1 = smart_transform(v1, t, Plus{});
         CHECK(std::vector<int>{r1.begin(), r1.end()} == std::vector<int>{3,3,3});
 
-        auto r2 = smart_transform(v1, v2, Plus<int>{});
+        auto r2 = smart_transform(v1, v2, Plus{});
         CHECK(std::vector<int>{r2.begin(), r2.end()} == std::vector<int>{3,3,3});
 
-        auto r3 = smart_transform(t, v1, Plus<int>{});
+        auto r3 = smart_transform(t, v1, Plus{});
         CHECK(std::vector<int>{r3.begin(), r3.end()} == std::vector<int>{3,3,3});
 
-        auto r4 = smart_transform(r3, t, Plus<int>{});
+        auto r4 = smart_transform(r3, t, Plus{});
         CHECK(std::vector<int>{r4.begin(), r4.end()} == std::vector<int>{5,5,5});
 
-        auto r5 = smart_transform(r3, r3, Plus<int>{});
+        auto r5 = smart_transform(r3, r3, Plus{});
         CHECK(std::vector<int>{r5.begin(), r5.end()} == std::vector<int>{6,6,6});
 
 

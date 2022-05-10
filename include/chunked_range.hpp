@@ -2,6 +2,8 @@
 
 #include "range.hpp"
 #include "runtime_assert.hpp"
+#include "tuple.hpp"
+#include "zip_range.hpp"
 
 namespace topaz {
 
@@ -62,15 +64,21 @@ namespace detail {
 template <size_t N, class Iterator, size_t... Is>
 CUDA_HOSTDEV auto get_chunks_impl(std::index_sequence<Is...>,
                                   const ChunkedRange<N, Iterator>& rng) {
-
     return adl_make_tuple(get_chunk<Is>(rng)...);
 }
+
+template <class ChunkTuple, class NaryOp, size_t... Is>
+CUDA_HOSTDEV auto chunked_reduce_impl(std::index_sequence<Is...>,
+                                      const ChunkTuple& tpl,
+                                      NaryOp            op) {
+    return op(get<Is>(tpl)...);
+}
+
 } // namespace detail
 
 template <size_t N, class Range_t>
 CUDA_HOSTDEV auto get_chunks(Range_t& rng) {
 
-    using iterator = decltype(std::begin(rng));
     return detail::get_chunks_impl(std::make_index_sequence<N>{},
                                    make_chunked_range<N>(rng));
 }
@@ -78,9 +86,15 @@ CUDA_HOSTDEV auto get_chunks(Range_t& rng) {
 template <size_t N, class Range_t>
 CUDA_HOSTDEV auto get_chunks(const Range_t& rng) {
 
-    using iterator = decltype(std::begin(rng));
     return detail::get_chunks_impl(std::make_index_sequence<N>{},
                                    make_chunked_range<N>(rng));
+}
+
+template <size_t N, class Range_t, class NaryOp>
+CUDA_HOSTDEV auto chunked_reduce(const Range_t& rng, NaryOp op) {
+
+    return detail::chunked_reduce_impl(
+        std::make_index_sequence<N>{}, get_chunks<N>(rng), op);
 }
 
 } // namespace topaz
