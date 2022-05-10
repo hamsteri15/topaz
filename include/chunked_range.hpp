@@ -13,6 +13,8 @@ private:
     using parent = Range<Iterator>;
 
 public:
+    static constexpr size_t n_chunks = N;
+
     using iterator       = typename parent::iterator;
     using value_type     = typename parent::value_type;
     using reference      = typename parent::reference;
@@ -24,23 +26,6 @@ public:
                        "Range not divisible by the chunk count.");
     }
 };
-
-template <size_t N, typename Iterator>
-CUDA_HOSTDEV auto chunk_size(const ChunkedRange<N, Iterator>& rng) {
-    return size(rng) / N;
-}
-
-template <size_t I, size_t N, typename Iterator>
-CUDA_HOSTDEV auto get_chunk(ChunkedRange<N, Iterator>& rng) {
-    static_assert(I < N, "Chunk index out of bounds.");
-    return slice(rng, I * chunk_size(rng), (I + size_t(1)) * chunk_size(rng));
-}
-
-template <size_t I, size_t N, typename Iterator>
-CUDA_HOSTDEV auto get_chunk(const ChunkedRange<N, Iterator>& rng) {
-    static_assert(I < N, "Chunk index out of bounds.");
-    return slice(rng, I * chunk_size(rng), (I + size_t(1)) * chunk_size(rng));
-}
 
 template <size_t N, typename Iterator>
 CUDA_HOSTDEV auto make_chunked_range(Iterator first, Iterator last) {
@@ -58,6 +43,36 @@ CUDA_HOSTDEV auto make_chunked_range(const Range_t& rng) {
     using iterator = decltype(std::begin(rng));
     return make_chunked_range<N, iterator>(adl_begin(rng), adl_end(rng));
 }
+
+
+template<class ChunkedRange_t>
+static constexpr CUDA_HOSTDEV auto chunk_count(const ChunkedRange_t&){
+    return ChunkedRange_t::n_chunks;
+}
+
+
+template <class ChunkedRange_t>
+CUDA_HOSTDEV auto chunk_size(const ChunkedRange_t& rng) {
+    return size(rng) / chunk_count(rng);
+}
+
+
+template <size_t I, class ChunkedRange_t>
+CUDA_HOSTDEV auto get_chunk(ChunkedRange_t& rng) {
+    //static_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    //TODO: should be a static assert
+    runtime_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    return slice(rng, I * chunk_size(rng), (I + size_t(1)) * chunk_size(rng));
+}
+
+template <size_t I, class ChunkedRange_t>
+CUDA_HOSTDEV auto get_chunk(const ChunkedRange_t& rng) {
+    //static_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    //TODO: should be a static assert
+    runtime_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    return slice(rng, I * chunk_size(rng), (I + size_t(1)) * chunk_size(rng));
+}
+
 
 namespace detail {
 
