@@ -63,32 +63,32 @@ constexpr bool IsRange_v = IsRange<T>::value;
 
 
 template<typename T, typename = void>
-struct IsRangeOrNumericVector : std::false_type {};
+struct IsRangeOrNumericArray : std::false_type {};
 
 
 
 template<typename T>
-struct IsRangeOrNumericVector<T, std::enable_if_t< (IsNumericVector_v<T>)||(IsRange_v<T>) >>
+struct IsRangeOrNumericArray<T, std::enable_if_t< (IsNumericVector_v<T>)||(IsRange_v<T>) >>
 : public std::true_type {};
 
 
 
 
 template< typename T >
-constexpr bool IsRangeOrNumericVector_v = IsRangeOrNumericVector<T>::value;
+constexpr bool IsRangeOrNumericArray_v = IsRangeOrNumericArray<T>::value;
 
 
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<typename T1, typename T2, typename = void>
-struct BothRangesOrNumericVectors : public std::false_type {};
+struct BothRangesOrNumericArrays : public std::false_type {};
 
 template<typename T1, typename T2>
-struct BothRangesOrNumericVectors< T1, T2, std::enable_if_t< IsRangeOrNumericVector_v<T1> && IsRangeOrNumericVector_v<T2> > >
+struct BothRangesOrNumericArrays< T1, T2, std::enable_if_t< IsRangeOrNumericArray_v<T1> && IsRangeOrNumericArray_v<T2> > >
    : public std::true_type {};
 
 template< typename T1, typename T2 >
-constexpr bool BothRangesOrNumericVectors_v = BothRangesOrNumericVectors<T1,T2>::value;
+constexpr bool BothRangesOrNumericArrays_v = BothRangesOrNumericArrays<T1,T2>::value;
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -101,21 +101,21 @@ struct SupportsBinaryExpression
 
 //Both are either expressions or fields
 template< typename T1, typename T2 >
-struct SupportsBinaryExpression< T1, T2, std::enable_if_t< BothRangesOrNumericVectors_v<T1, T2> > >
+struct SupportsBinaryExpression< T1, T2, std::enable_if_t< BothRangesOrNumericArrays_v<T1, T2> > >
    : public std::true_type {};
 
 
 
 //LHS is a scalar value
 template< typename T1, typename T2 >
-struct SupportsBinaryExpression< T1, T2, std::enable_if_t< IsScalar_v<T1> && IsRangeOrNumericVector_v<T2> > >
+struct SupportsBinaryExpression< T1, T2, std::enable_if_t< IsScalar_v<T1> && IsRangeOrNumericArray_v<T2> > >
    : public std::true_type {};
 
 
 
 //RHS is a scalar value
 template< typename T1, typename T2 >
-struct SupportsBinaryExpression< T1, T2, std::enable_if_t< IsRangeOrNumericVector_v<T1> && IsScalar_v<T2> > >
+struct SupportsBinaryExpression< T1, T2, std::enable_if_t< IsRangeOrNumericArray_v<T1> && IsScalar_v<T2> > >
    : public std::true_type {};
 
 

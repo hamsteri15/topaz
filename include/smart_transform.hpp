@@ -20,7 +20,7 @@ inline CUDA_HOSTDEV auto determine_size(const T1& lhs, const T2&)
 
 template <class T1,
           class T2,
-          typename = std::enable_if_t<BothRangesOrNumericVectors_v<T1, T2>>>
+          typename = std::enable_if_t<BothRangesOrNumericArrays_v<T1, T2>>>
 inline CUDA_HOSTDEV auto determine_size(const T1& lhs, const T2&) {
     return adl_size(lhs);
 }

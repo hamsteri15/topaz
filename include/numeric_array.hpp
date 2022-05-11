@@ -51,12 +51,12 @@ public:
 
     // TODO: this should maybe be marked explicit as well
     template <class Range_t,
-              typename = std::enable_if_t<IsRangeOrNumericVector_v<Range_t>>>
+              typename = std::enable_if_t<IsRangeOrNumericArray_v<Range_t>>>
     inline NumericArray(const Range_t& rng)
         : parent(adl_begin(rng), adl_end(rng)) {}
 
     template <class Range_t,
-              typename = std::enable_if_t<IsRangeOrNumericVector_v<Range_t>>>
+              typename = std::enable_if_t<IsRangeOrNumericArray_v<Range_t>>>
     inline NumericArray& operator=(const Range_t& rng) {
         // TODO: This should probably be calling some parallel algorithm for std
         // C++17
