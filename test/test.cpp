@@ -29,6 +29,21 @@ using NSoa_t = topaz::NumericSoa<N, T, std::allocator<T>>;
 
 #endif
 
+TEST_CASE("Tuple"){
+
+    using namespace topaz;
+
+    auto tpl = adl_make_tuple(int(1), double(4), float(5));
+    CHECK(get<0>(tpl) == int(1));
+
+    static_assert(tuple_size<decltype(tpl)>::value == size_t(3));
+
+    auto s_tpl = to_std_tuple(tpl);
+    CHECK(std::get<0>(s_tpl) == int(1));
+
+}
+
+
 TEST_CASE("Range"){
 
 
@@ -221,6 +236,19 @@ TEST_CASE("ChunkedRange"){
     }
 
 
+    SECTION("zip_begins"){
+
+
+       const vector_t<int> v = std::vector<int>{1,2,3,4};
+
+        auto it = zip_begins<2>(v);
+
+        auto tpl1 = *it++;
+        CHECK(get<0>(tpl1) == 1);
+        CHECK(get<1>(tpl1) == 3);
+
+
+    }
 
 
 
@@ -471,7 +499,7 @@ TEST_CASE("NumericSoa"){
         for (auto it = soa.zipped_begin(); it != soa.zipped_end(); ++it){
             *it = adl_make_tuple(1,2,3);
         }
-        auto tpl = soa.get_all_chunks();
+        auto tpl = get_chunks<3>(soa);
         auto x = get<0>(tpl);
         auto y = get<1>(tpl);
         auto z = get<2>(tpl);

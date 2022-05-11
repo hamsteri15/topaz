@@ -44,35 +44,47 @@ CUDA_HOSTDEV auto make_chunked_range(const Range_t& rng) {
     return make_chunked_range<N, iterator>(adl_begin(rng), adl_end(rng));
 }
 
-
-template<class ChunkedRange_t>
-static constexpr CUDA_HOSTDEV auto chunk_count(const ChunkedRange_t&){
+template <class ChunkedRange_t>
+static constexpr CUDA_HOSTDEV auto chunk_count(const ChunkedRange_t&) {
     return ChunkedRange_t::n_chunks;
 }
 
-
 template <class ChunkedRange_t>
 CUDA_HOSTDEV auto chunk_size(const ChunkedRange_t& rng) {
-    return size(rng) / chunk_count(rng);
+    return adl_size(rng) / chunk_count(rng);
 }
-
 
 template <size_t I, class ChunkedRange_t>
 CUDA_HOSTDEV auto get_chunk(ChunkedRange_t& rng) {
-    //static_assert(I < chunk_count(rng), "Chunk index out of bounds.");
-    //TODO: should be a static assert
+    // static_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    // TODO: should be a static assert
     runtime_assert(I < chunk_count(rng), "Chunk index out of bounds.");
     return slice(rng, I * chunk_size(rng), (I + size_t(1)) * chunk_size(rng));
 }
 
 template <size_t I, class ChunkedRange_t>
 CUDA_HOSTDEV auto get_chunk(const ChunkedRange_t& rng) {
-    //static_assert(I < chunk_count(rng), "Chunk index out of bounds.");
-    //TODO: should be a static assert
+    // static_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    // TODO: should be a static assert
     runtime_assert(I < chunk_count(rng), "Chunk index out of bounds.");
     return slice(rng, I * chunk_size(rng), (I + size_t(1)) * chunk_size(rng));
 }
 
+template <class ChunkedRange_t>
+CUDA_HOSTDEV auto get_chunk(size_t I, ChunkedRange_t& rng) {
+    // static_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    // TODO: should be a static assert
+    runtime_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    return slice(rng, I * chunk_size(rng), (I + size_t(1)) * chunk_size(rng));
+}
+
+template <class ChunkedRange_t>
+CUDA_HOSTDEV auto get_chunk(size_t I, const ChunkedRange_t& rng) {
+    // static_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    // TODO: should be a static assert
+    runtime_assert(I < chunk_count(rng), "Chunk index out of bounds.");
+    return slice(rng, I * chunk_size(rng), (I + size_t(1)) * chunk_size(rng));
+}
 
 namespace detail {
 
@@ -89,7 +101,63 @@ CUDA_HOSTDEV auto chunked_reduce_impl(std::index_sequence<Is...>,
     return op(get<Is>(tpl)...);
 }
 
+template <size_t N, class Iterator, size_t... Is>
+CUDA_HOSTDEV auto zip_begins_impl(std::index_sequence<Is...>,
+                                  ChunkedRange<N, Iterator>& rng) {
+    return detail::make_zip_iterator(
+        adl_make_tuple(get_chunk<Is>(rng).begin()...));
+}
+
+template <size_t N, class Iterator, size_t... Is>
+CUDA_HOSTDEV auto zip_begins_impl(std::index_sequence<Is...>,
+                                  const ChunkedRange<N, Iterator>& rng) {
+    return detail::make_zip_iterator(
+        adl_make_tuple(get_chunk<Is>(rng).begin()...));
+}
+
+template <size_t N, class Iterator, size_t... Is>
+CUDA_HOSTDEV auto zip_ends_impl(std::index_sequence<Is...>,
+                                ChunkedRange<N, Iterator>& rng) {
+    return detail::make_zip_iterator(
+        adl_make_tuple(get_chunk<Is>(rng).end()...));
+}
+
+template <size_t N, class Iterator, size_t... Is>
+CUDA_HOSTDEV auto zip_ends_impl(std::index_sequence<Is...>,
+                                const ChunkedRange<N, Iterator>& rng) {
+    return detail::make_zip_iterator(
+        adl_make_tuple(get_chunk<Is>(rng).end()...));
+}
+
 } // namespace detail
+
+template <size_t N, class Range_t>
+CUDA_HOSTDEV auto zip_begins(Range_t& rng) {
+
+    return detail::zip_begins_impl(std::make_index_sequence<N>{},
+                                   make_chunked_range<N>(rng));
+}
+
+template <size_t N, class Range_t>
+CUDA_HOSTDEV auto zip_begins(const Range_t& rng) {
+
+    return detail::zip_begins_impl(std::make_index_sequence<N>{},
+                                   make_chunked_range<N>(rng));
+}
+
+template <size_t N, class Range_t>
+CUDA_HOSTDEV auto zip_ends(Range_t& rng) {
+
+    return detail::zip_ends_impl(std::make_index_sequence<N>{},
+                                 make_chunked_range<N>(rng));
+}
+
+template <size_t N, class Range_t>
+CUDA_HOSTDEV auto zip_ends(const Range_t& rng) {
+
+    return detail::zip_ends_impl(std::make_index_sequence<N>{},
+                                 make_chunked_range<N>(rng));
+}
 
 template <size_t N, class Range_t>
 CUDA_HOSTDEV auto get_chunks(Range_t& rng) {
