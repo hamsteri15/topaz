@@ -424,6 +424,30 @@ TEST_CASE("NumericArray"){
         CHECK(std::vector<int>{t2.begin(), t2.end()} == std::vector<int>{6, 9, 12});
 
 
+        SECTION("sqr"){
+
+            const NVec_t<int> v1{1,2,3};
+            auto t1 = sqr(v1);
+            CHECK(std::vector<int>{t1.begin(), t1.end()} == std::vector<int>{1, 4, 9});
+
+        }
+        SECTION("sqrt float"){
+
+            const NVec_t<float> v1{1,2,3};
+            auto t1 = sqrt(v1);
+            CHECK(std::vector<float>{t1.begin(), t1.end()}
+                    == std::vector<float>{adl_sqrt(float(1)), adl_sqrt(float(2)), adl_sqrt(float(3))});
+
+        }
+        SECTION("sqrt float"){
+
+            const NVec_t<double> v1{1,2,3};
+            auto t1 = sqrt(v1);
+            CHECK(std::vector<double>{t1.begin(), t1.end()}
+                    == std::vector<double>{adl_sqrt(double(1)), adl_sqrt(double(2)), adl_sqrt(double(3))});
+
+        }
+
     }
 
 }

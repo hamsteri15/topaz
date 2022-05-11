@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cmath>
+//#include <math.h>
 #include "range.hpp"
-#include "traits.hpp"
 #include "smart_transform.hpp"
+#include "traits.hpp"
 
 namespace topaz {
 
@@ -38,6 +40,17 @@ struct Divides {
     }
 };
 
+inline CUDA_HOSTDEV float  adl_sqrt(float s) { return sqrtf(s); }
+inline CUDA_HOSTDEV double adl_sqrt(double s) { return sqrt(s); }
+struct Sqrt {
+
+    template <class T>
+    inline CUDA_HOSTDEV auto operator()(const T& t) const
+        -> decltype(adl_sqrt(t)) {
+        return adl_sqrt(t);
+    }
+};
+
 template <class T1,
           class T2,
           typename = std::enable_if_t<SupportsBinaryExpression_v<T1, T2>>>
@@ -68,6 +81,16 @@ template <class T1,
 inline CUDA_HOSTDEV auto operator/(const T1& lhs, const T2& rhs) {
 
     return smart_transform(lhs, rhs, Divides{});
+}
+
+template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+inline CUDA_HOSTDEV auto sqr(const T& t) {
+    return t * t;
+}
+
+template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+inline CUDA_HOSTDEV auto sqrt(const T& t) {
+    return transform(t, Sqrt{});
 }
 
 } // namespace topaz
