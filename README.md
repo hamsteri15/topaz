@@ -10,7 +10,7 @@ operations run on the gpu.
 Although, the library is intended to be as dependency-free as possible, the following libraries are still required:
 
 - C++14
-- [Boost](https://www.boost.org/) Extension to standard library. Required when compiled with gcc.
+- [Boost v1.67+](https://www.boost.org/) Extension to standard library. Required when compiled with gcc.
 - [thrust](https://thrust.github.io/) Cuda extensions to the standard library. Required when compiled with nvcc.
 
 
