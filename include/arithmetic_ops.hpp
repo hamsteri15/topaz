@@ -40,6 +40,22 @@ struct Divides {
     }
 };
 
+struct Max {
+    template <class T>
+    inline CUDA_HOSTDEV auto operator()(const T& lhs, const T& rhs) const
+        -> decltype(max(lhs, rhs)) {
+            return max(lhs, rhs);
+    }
+};
+
+struct Min {
+    template <class T>
+    inline CUDA_HOSTDEV auto operator()(const T& lhs, const T& rhs) const
+        -> decltype(min(lhs, rhs)) {
+            return min(lhs, rhs);
+    }
+};
+
 inline CUDA_HOSTDEV float  adl_sqrt(float s) { return sqrtf(s); }
 inline CUDA_HOSTDEV double adl_sqrt(double s) { return sqrt(s); }
 struct Sqrt {
@@ -50,6 +66,34 @@ struct Sqrt {
         return adl_sqrt(t);
     }
 };
+
+struct Exp {
+
+    template <class T>
+    inline CUDA_HOSTDEV auto operator()(const T& t) const
+        -> decltype(exp(t)) {
+        return exp(t);
+    }
+};
+
+struct Log {
+
+    template <class T>
+    inline CUDA_HOSTDEV auto operator()(const T& t) const
+        -> decltype(log(t)) {
+        return log(t);
+    }
+};
+
+struct Pow {
+
+    template <class T>
+    inline CUDA_HOSTDEV auto operator()(const T& x, const T& power) const
+        -> decltype(pow(x,power)) {
+        return pow(x, power);
+    }
+};
+
 
 template <class T1,
           class T2,
@@ -83,6 +127,30 @@ inline CUDA_HOSTDEV auto operator/(const T1& lhs, const T2& rhs) {
     return smart_transform(lhs, rhs, Divides{});
 }
 
+template <class T1,
+          class T2,
+          typename = std::enable_if_t<SupportsBinaryExpression_v<T1, T2>>>
+inline CUDA_HOSTDEV auto max(const T1& lhs, const T2& rhs) {
+
+    return smart_transform(lhs, rhs, Max{});
+}
+
+template <class T1,
+          class T2,
+          typename = std::enable_if_t<SupportsBinaryExpression_v<T1, T2>>>
+inline CUDA_HOSTDEV auto min(const T1& lhs, const T2& rhs) {
+
+    return smart_transform(lhs, rhs, Min{});
+}
+
+
+template <class T, class Scalar_t, typename = std::enable_if_t<IsRangeOrNumericArray_v<T> && IsScalar_v<Scalar_t>>>
+inline CUDA_HOSTDEV auto pow(const T& t, Scalar_t power) {
+    return smart_transform(t, power, Pow{});
+}
+
+
+
 template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
 inline CUDA_HOSTDEV auto sqr(const T& t) {
     return t * t;
@@ -91,6 +159,28 @@ inline CUDA_HOSTDEV auto sqr(const T& t) {
 template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
 inline CUDA_HOSTDEV auto sqrt(const T& t) {
     return transform(t, Sqrt{});
+}
+
+template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+inline CUDA_HOSTDEV auto pow2(const T& t) {
+    using value_type = typename T::value_type;
+    return pow(t, value_type(2));
+}
+
+template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+inline CUDA_HOSTDEV auto pow3(const T& t) {
+    using value_type = typename T::value_type;
+    return pow(t, value_type(3));
+}
+
+template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+inline CUDA_HOSTDEV auto exp(const T& t) {
+    return transform(t, Exp{});
+}
+
+template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+inline CUDA_HOSTDEV auto log(const T& t) {
+    return transform(t, Log{});
 }
 
 } // namespace topaz

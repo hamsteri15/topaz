@@ -404,25 +404,49 @@ TEST_CASE("NumericArray"){
 
     SECTION("Arithmetic"){
 
-        const NVec_t<int> v1{1,2,3};
-        const NVec_t<int> v2{4,5,6};
+        SECTION("plus, minus, divides, multiplies"){
+        
+            const NVec_t<int> v1{1,2,3};
+            const NVec_t<int> v2{4,5,6};
 
-        auto v3 = 12 * v1 * v2 / v1 / 3 - v1 * v2 + 43 * v1 - 2;
-
-
-        std::vector<int> correct = {
-            12 * 1 * 4 / 1 / 3 - 1 * 4 + 43 * 1 - 2,
-            12 * 2 * 5 / 2 / 3 - 2 * 5 + 43 * 2 - 2,
-            12 * 3 * 6 / 3 / 3 - 3 * 6 + 43 * 3 - 2
-        };
-
-        CHECK(std::vector<int>{v3.begin(), v3.end()} == correct);
+            auto v3 = 12 * v1 * v2 / v1 / 3 - v1 * v2 + 43 * v1 - 2;
 
 
-        auto t1 = v1 + v2;
-        auto t2 = t1 + v1;
-        CHECK(std::vector<int>{t2.begin(), t2.end()} == std::vector<int>{6, 9, 12});
+            std::vector<int> correct = {
+                12 * 1 * 4 / 1 / 3 - 1 * 4 + 43 * 1 - 2,
+                12 * 2 * 5 / 2 / 3 - 2 * 5 + 43 * 2 - 2,
+                12 * 3 * 6 / 3 / 3 - 3 * 6 + 43 * 3 - 2
+            };
 
+            CHECK(std::vector<int>{v3.begin(), v3.end()} == correct);
+
+
+            auto t1 = v1 + v2;
+            auto t2 = t1 + v1;
+            CHECK(std::vector<int>{t2.begin(), t2.end()} == std::vector<int>{6, 9, 12});
+        }
+        SECTION("min/max"){
+            const NVec_t<int> v1{1,8,3};
+            const NVec_t<int> v2{4,5,6};
+            auto m1 = topaz::max(v1, v2);
+            CHECK(std::vector<int>{m1.begin(), m1.end()} == std::vector<int>{4, 8, 6});
+            
+            auto m2 = topaz::max(v1, 3);
+            CHECK(std::vector<int>{m2.begin(), m2.end()} == std::vector<int>{3, 8, 3});
+            
+            auto m3 = topaz::max(3, v1);
+            CHECK(std::vector<int>{m3.begin(), m3.end()} == std::vector<int>{3, 8, 3});
+            
+            auto m4 = topaz::min(v1, v2);
+            CHECK(std::vector<int>{m4.begin(), m4.end()} == std::vector<int>{1, 5, 3});
+            
+            auto m5 = topaz::min(v1, 3);
+            CHECK(std::vector<int>{m5.begin(), m5.end()} == std::vector<int>{1, 3, 3});
+            
+            auto m6 = topaz::min(3, v1);
+            CHECK(std::vector<int>{m6.begin(), m6.end()} == std::vector<int>{1, 3, 3});
+
+        }
 
         SECTION("sqr"){
 
@@ -445,6 +469,70 @@ TEST_CASE("NumericArray"){
             auto t1 = sqrt(v1);
             CHECK(std::vector<double>{t1.begin(), t1.end()}
                     == std::vector<double>{adl_sqrt(double(1)), adl_sqrt(double(2)), adl_sqrt(double(3))});
+
+        }
+        SECTION("pow float"){
+
+            const NVec_t<float> v1{1,2,3};
+            auto t1 = pow(v1, float(2.0));
+            CHECK(std::vector<float>{t1.begin(), t1.end()}
+                    == std::vector<float>{pow(float(1), float(2)), pow(float(2),float(2)), pow(float(3),float(2))});
+
+        }
+        SECTION("pow double"){
+
+            const NVec_t<double> v1{1,2,3};
+            auto t1 = pow(v1, 2.0);
+            CHECK(std::vector<double>{t1.begin(), t1.end()}
+                    == std::vector<double>{pow(1.0, 2.0), pow(2.0, 2.0), pow(3.0, 2.0)});
+
+        }
+        SECTION("pow2"){
+
+            const NVec_t<double> v1{1,2,3};
+            auto t1 = pow2(v1);
+            CHECK(std::vector<double>{t1.begin(), t1.end()}
+                    == std::vector<double>{pow(1.0, 2.0), pow(2.0, 2.0), pow(3.0, 2.0)});
+
+        }
+        SECTION("pow3"){
+
+            const NVec_t<double> v1{1,2,3};
+            auto t1 = pow3(v1);
+            CHECK(std::vector<double>{t1.begin(), t1.end()}
+                    == std::vector<double>{pow(1.0, 3.0), pow(2.0, 3.0), pow(3.0, 3.0)});
+
+        }
+        SECTION("exp float"){
+
+            const NVec_t<float> v1{1,2,3};
+            auto t1 = exp(v1);
+            CHECK(std::vector<float>{t1.begin(), t1.end()}
+                    == std::vector<float>{exp(float(1)), exp(float(2)), exp(float(3))});
+
+        }
+        SECTION("exp double"){
+
+            const NVec_t<double> v1{1,2,3};
+            auto t1 = exp(v1);
+            CHECK(std::vector<double>{t1.begin(), t1.end()}
+                    == std::vector<double>{exp(1.0), exp(2.0), exp(3.0)});
+
+        }
+        SECTION("log float"){
+
+            const NVec_t<float> v1{1,2,3};
+            auto t1 = log(v1);
+            CHECK(std::vector<float>{t1.begin(), t1.end()}
+                    == std::vector<float>{log(float(1)), log(float(2)), log(float(3))});
+
+        }
+        SECTION("log double"){
+
+            const NVec_t<double> v1{1,2,3};
+            auto t1 = log(v1);
+            CHECK(std::vector<double>{t1.begin(), t1.end()}
+                    == std::vector<double>{log(1.0), log(2.0), log(3.0)});
 
         }
 
