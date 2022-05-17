@@ -76,7 +76,7 @@ struct Exp {
     }
 };
 
-struct Log {
+struct Log_e {
 
     template <class T>
     inline CUDA_HOSTDEV auto operator()(const T& t) const
@@ -93,6 +93,7 @@ struct Pow {
         return pow(x, power);
     }
 };
+
 
 
 template <class T1,
@@ -180,7 +181,7 @@ inline CUDA_HOSTDEV auto exp(const T& t) {
 
 template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
 inline CUDA_HOSTDEV auto log(const T& t) {
-    return transform(t, Log{});
+    return transform(t, Log_e{});
 }
 
 } // namespace topaz
