@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cmath>
-//#include <math.h>
+//#include <cmath>
+#include <math.h>
 #include "range.hpp"
 #include "smart_transform.hpp"
 #include "traits.hpp"
@@ -40,19 +40,32 @@ struct Divides {
     }
 };
 
+template<class T> 
+inline CUDA_HOSTDEV const T& adl_max(const T& a, const T& b)
+{
+    return (a < b) ? b : a;
+}
+
 struct Max {
     template <class T>
     inline CUDA_HOSTDEV auto operator()(const T& lhs, const T& rhs) const
-        -> decltype(max(lhs, rhs)) {
-            return max(lhs, rhs);
+        -> decltype(adl_max(lhs, rhs)) {
+            return adl_max(lhs, rhs);
     }
 };
+
+
+template<class T> 
+inline CUDA_HOSTDEV const T& adl_min(const T& a, const T& b)
+{
+    return (b < a) ? b : a;
+}
 
 struct Min {
     template <class T>
     inline CUDA_HOSTDEV auto operator()(const T& lhs, const T& rhs) const
-        -> decltype(min(lhs, rhs)) {
-            return min(lhs, rhs);
+        -> decltype(adl_min(lhs, rhs)) {
+            return adl_min(lhs, rhs);
     }
 };
 

@@ -1,7 +1,7 @@
 
 
 #tests
-#g++ -std=c++17 -Iinclude/ -Itest/ test/test.cpp -o test_cpu.bin
+g++ -std=c++17 -Iinclude/ -Itest/ test/test.cpp -o test_cpu.bin
 nvcc -std=c++14 -Iinclude/ -Itest/ -x cu test/test.cpp -o test_gpu.bin
 
 #nvcc -std=c++14 -Iinclude/ -Itest/ -x cu test/test_stream.cu -o test_stream_gpu.bin
