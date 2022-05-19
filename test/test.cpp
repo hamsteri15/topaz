@@ -535,6 +535,22 @@ TEST_CASE("NumericArray"){
                     == std::vector<double>{log(1.0), log(2.0), log(3.0)});
 
         }
+        SECTION("erf float"){
+
+            const NVec_t<float> v1{1,2,3};
+            auto t1 = erf(v1);
+            CHECK(std::vector<float>{t1.begin(), t1.end()}
+                    == std::vector<float>{erff(float(1)), erff(float(2)), erff(float(3))});
+
+        }
+        SECTION("erf double"){
+
+            const NVec_t<double> v1{1,2,3};
+            auto t1 = erf(v1);
+            CHECK(std::vector<double>{t1.begin(), t1.end()}
+                    == std::vector<double>{erf(1.0), erf(2.0), erf(3.0)});
+
+        }
 
     }
 

@@ -69,7 +69,7 @@ struct Min {
     }
 };
 
-inline CUDA_HOSTDEV float  adl_sqrt(float s) { return sqrtf(s); }
+inline CUDA_HOSTDEV float  adl_sqrt(float s) { return ::sqrtf(s); }
 inline CUDA_HOSTDEV double adl_sqrt(double s) { return ::sqrt(s); }
 struct Sqrt {
 
@@ -106,6 +106,19 @@ struct Pow {
         return ::pow(x, power);
     }
 };
+
+
+inline CUDA_HOSTDEV float  adl_erf(float s) { return ::erff(s); }
+inline CUDA_HOSTDEV double adl_erf(double s) { return ::erf(s); }
+struct Erf {
+
+    template <class T>
+    inline CUDA_HOSTDEV auto operator()(const T& t) const
+        -> decltype(adl_erf(t)) {
+        return adl_erf(t);
+    }
+};
+
 
 
 
@@ -195,6 +208,11 @@ inline CUDA_HOSTDEV auto exp(const T& t) {
 template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
 inline CUDA_HOSTDEV auto log(const T& t) {
     return transform(t, Log_e{});
+}
+
+template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+inline CUDA_HOSTDEV auto erf(const T& t) {
+    return transform(t, Erf{});
 }
 
 } // namespace topaz
