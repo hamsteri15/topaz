@@ -70,7 +70,7 @@ struct Min {
 };
 
 inline CUDA_HOSTDEV float  adl_sqrt(float s) { return sqrtf(s); }
-inline CUDA_HOSTDEV double adl_sqrt(double s) { return sqrt(s); }
+inline CUDA_HOSTDEV double adl_sqrt(double s) { return ::sqrt(s); }
 struct Sqrt {
 
     template <class T>
@@ -84,8 +84,8 @@ struct Exp {
 
     template <class T>
     inline CUDA_HOSTDEV auto operator()(const T& t) const
-        -> decltype(exp(t)) {
-        return exp(t);
+        -> decltype(::exp(t)) {
+        return ::exp(t);
     }
 };
 
@@ -93,8 +93,8 @@ struct Log_e {
 
     template <class T>
     inline CUDA_HOSTDEV auto operator()(const T& t) const
-        -> decltype(log(t)) {
-        return log(t);
+        -> decltype(::log(t)) {
+        return ::log(t);
     }
 };
 
@@ -102,8 +102,8 @@ struct Pow {
 
     template <class T>
     inline CUDA_HOSTDEV auto operator()(const T& x, const T& power) const
-        -> decltype(pow(x,power)) {
-        return pow(x, power);
+        -> decltype(::pow(x,power)) {
+        return ::pow(x, power);
     }
 };
 
