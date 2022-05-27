@@ -9,7 +9,7 @@
 #include <thrust/device_malloc_allocator.h>
 #include <thrust/execution_policy.h>
 #include <thrust/async/copy.h>
-#include <thrust/async/reduce.h>
+#include <thrust/async/transform.h>
 
 template<class T>
 using vector_t = thrust::device_vector<T>;
@@ -45,26 +45,31 @@ auto arithmetic1(const Vector_t& v1, const Vector_t& v2, const Vector_t& v3){
     return v1 * v2 + T(43) / v1 * v3 - v1 - T(32);
 }
 
+struct NoOp{
+
+    CUDA_HOSTDEV double operator()(const double& d) {return d;}
+
+};
 TEST_CASE("asd"){
 
 
-    size_t n_elements = 20000;
-    size_t n_kernels = 100;
+    size_t n_elements = 2000;
+    size_t n_kernels = 400;
 
     using element_t = double;
+    std::vector<NVec_t<element_t>> results(n_kernels, NVec_t<element_t>(n_elements, 0));
+    NVec_t<element_t> v1(n_elements, 1);
+    NVec_t<element_t> v2(n_elements, 2);
+    NVec_t<element_t> v3(n_elements, 3);
+
+    std::vector<thrust::host_vector<element_t>> results_host(n_kernels, std::vector<element_t>(n_elements));
 
     BENCHMARK("Sequential kernel evaluation"){
-
-        std::vector<NVec_t<element_t>> results(n_kernels, NVec_t<element_t>(n_elements, 0));
-        NVec_t<element_t> v1(n_elements, 1);
-        NVec_t<element_t> v2(n_elements, 2);
-        NVec_t<element_t> v3(n_elements, 3);
 
         for (size_t i = 0; i < n_kernels; ++i){
             auto kernel = arithmetic1(v1, v2, v3);
             topaz::copy(kernel, results[i]);
         }
-        std::vector<thrust::host_vector<element_t>> results_host(n_kernels, std::vector<element_t>(n_elements));
         for (size_t i = 0; i < n_kernels; ++i){
             topaz::copy(results[i], results_host[i]);
         }
@@ -76,11 +81,6 @@ TEST_CASE("asd"){
         size_t n_streams = n_kernels;
         auto streams = create_streams(n_streams);
 
-        std::vector<NVec_t<element_t>> results(n_kernels, NVec_t<element_t>(n_elements, 0));
-
-        NVec_t<element_t> v1(n_elements, 1);
-        NVec_t<element_t> v2(n_elements, 2);
-        NVec_t<element_t> v3(n_elements, 3);
 
         for (size_t i = 0; i < n_kernels; ++i){
             auto kernel = arithmetic1(v1, v2, v3);
@@ -88,8 +88,8 @@ TEST_CASE("asd"){
             copy(policy, kernel, results[i]);
         }
 
-        std::vector<thrust::host_vector<element_t>> results_host(n_kernels, std::vector<element_t>(n_elements));
         for (size_t i = 0; i < n_kernels; ++i){
+            cudaStreamSynchronize(streams[i]);
             topaz::copy(results[i], results_host[i]);
         }
 
@@ -99,30 +99,26 @@ TEST_CASE("asd"){
 
     BENCHMARK("async copy"){
 
-        NVec_t<element_t> v1(n_elements, 1);
-        NVec_t<element_t> v2(n_elements, 2);
-        NVec_t<element_t> v3(n_elements, 3);
-
 
         std::vector<thrust::device_event> events;
-        std::vector<NVec_t<element_t>> results(n_kernels, NVec_t<element_t>(n_elements, 0));
 
         for (size_t i = 0; i < n_kernels; ++i){
 
             auto kernel = arithmetic1(v1, v2, v3);
-            events.push_back(thrust::async::copy(
-                kernel.begin(), kernel.end(), results[i].begin()
+            events.push_back(thrust::async::transform(
+                kernel.begin(), kernel.end(), results[i].begin(), NoOp{}
             ));
             //events.push_back(event);
         }
 
-        for (auto& e : events){
-            e.wait();
-        }
-
-
-        std::vector<std::vector<element_t>> results_host(n_kernels, std::vector<element_t>(n_elements));
         for (size_t i = 0; i < n_kernels; ++i){
+            /*auto e = thrust::async::copy
+            (
+                thrust::host.after(events[i]),
+                results[i].begin(), results[i].end(), results_host[i].begin()
+            );
+            e.wait();*/
+            events[i].wait();
             topaz::copy(results[i], results_host[i]);
         }
 
