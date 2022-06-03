@@ -66,7 +66,7 @@ struct Data {
         : n_elements(n_elements_)
         , n_kernels(n_kernels_)
         , results_device(n_kernels, NVec_t<element_t>(n_elements))
-        , results_host(n_kernels, std::vector<element_t>(n_elements)) 
+        , results_host(n_kernels, std::vector<element_t>(n_elements))
         , v1(n_elements)
         , v2(n_elements)
         , v3(n_elements)
@@ -86,18 +86,33 @@ struct NoOp{
     CUDA_HOSTDEV double operator()(const double& d) {return d;}
 };
 
+
+template<class T1, class T2>
+__global__
+void copy_custom(T1 in, T2 out, size_t size)
+{
+  size_t i = blockIdx.x*blockDim.x + threadIdx.x;
+  if (i < size) out[i] = in[i];
+}
+
+
+
 auto sequential(Data& data){
 
-
+    int N = data.n_elements;
+    int threads = 1024;
+    int blocks = (N + threads + 1) / threads;
     for (size_t i = 0; i < data.n_kernels; ++i){
         auto kernel = arithmetic1(data.v1, data.v2, data.v3);
-        topaz::copy(kernel, data.results_device[i]);
+        //copy_custom
+        copy_custom<<<blocks, threads>>>(kernel.begin(), data.results_device[i].begin(), data.results_device[i].size());
+        //topaz::copy(kernel, data.results_device[i]);
     }
     for (size_t i = 0; i < data.n_kernels; ++i){
         topaz::copy(data.results_device[i], data.results_host[i]);
     }
-    
-    //return results_host;
+
+    return data.results_host;
 }
 
 
@@ -107,23 +122,26 @@ auto streamed(Data& data){
     size_t n_streams = data.n_kernels;
     auto streams = create_streams(n_streams);
 
+    int N = data.n_elements;
+    int threads = 1024;
+    int blocks = (N + threads + 1) / threads;
 
     for (size_t i = 0; i < data.n_kernels; ++i){
         auto kernel = arithmetic1(data.v1, data.v2, data.v3);
         auto policy = thrust::cuda::par.on(streams[i]);
-        thrust::transform(policy, kernel.begin(), kernel.end(), data.results_device[i].begin(), NoOp{});
+        //thrust::transform(policy, kernel.begin(), kernel.end(), data.results_device[i].begin(), NoOp{});
 
+        copy_custom<<<blocks, threads, 0, streams[i]>>>(kernel.begin(), data.results_device[i].begin(), data.results_device[i].size());
         //thrust::transform(kernel.begin(), kernel.end(), data.results_device[i].begin());
     }
     sync_streams(streams);
     for (size_t i = 0; i < data.n_kernels; ++i){
         copy(data.results_device[i], data.results_host[i]);
     }
-    
-    //copy(policy, kernel, data.results_host[i]);
-    
-    
+
+
     destroy_streams(streams);
+    return data.results_host;
 
 }
 
@@ -153,20 +171,19 @@ auto async(Data& data){
         //events[i].wait();
         topaz::copy(data.results_device[i], data.results_host[i]);
     }
+    return data.results_host;
 
 }
 
 int main(){
-    size_t n_elements = 1E5;
+    size_t n_elements = 1E6;
     size_t n_kernels = 20;
 
     Data data(n_elements, n_kernels);
 
-    //sequential(data);
-    //streamed(data);
-    async(data);
-    //auto r2 = streamed(n_elements, n_kernels);
-    //auto r3 = async(n_elements, n_kernels);
+    //auto r1 = sequential(data);
+    auto r2 = streamed(data);
+    //auto r3 = async(data);
     return 0;
 
 }
