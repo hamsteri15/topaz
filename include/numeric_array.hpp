@@ -36,6 +36,9 @@ public:
 
     inline NumericArray() = default;
 
+    inline explicit NumericArray(size_type n)
+        : parent(n) {}
+
     inline explicit NumericArray(size_type n, const value_type& value)
         : parent(n, value) {}
 
