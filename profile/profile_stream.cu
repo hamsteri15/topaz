@@ -171,6 +171,7 @@ auto streamed(Data& data, Streams& streams){
         //thrust::transform(policy, kernel.begin(), kernel.end(), data.results_device[i].begin(), NoOp{});
         copy_custom<<<blocks, threads, 0, stream>>>(kernel.begin(), data.results_device[i].begin(), data.results_device[i].size());
 
+        /*
         cudaMemcpyAsync(
             data.results_host[i].data(),
             thrust::raw_pointer_cast(data.results_device[i].data()),
@@ -178,6 +179,8 @@ auto streamed(Data& data, Streams& streams){
             cudaMemcpyDeviceToHost,
             stream
         );
+        */
+
     }
 
     /*
@@ -262,12 +265,13 @@ TEST_CASE("Sequential"){
 TEST_CASE("Streamed"){
 
     auto data = createData();
-    Streams streams(2);
+    Streams streams(4);
     BENCHMARK("Streamed"){
         return streamed(data, streams);
     };
 
 }
+
 TEST_CASE("Async"){
 
     auto data = createData();
