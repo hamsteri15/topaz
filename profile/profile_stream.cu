@@ -1,4 +1,6 @@
-
+#define CATCH_CONFIG_ENABLE_BENCHMARKING
+#define CATCH_CONFIG_MAIN // This tells the catch header to generate a main
+#include "catch.hpp"
 #include "all.hpp"
 
 #include <thrust/device_vector.h>
@@ -9,7 +11,7 @@
 #include <thrust/async/reduce.h>
 #include <thrust/async/transform.h>
 #include <thrust/transform.h>
-
+#include <thrust/system/cuda/experimental/pinned_allocator.h>
 template <typename T>
 struct uninitialized_allocator : thrust::device_malloc_allocator<T> {
     __host__ __device__ void construct(T* p) {}
@@ -23,6 +25,12 @@ using allocator = uninitialized_allocator<T>; //thrust::device_malloc_allocator<
 
 template<class T>
 using NVec_t = topaz::NumericArray<T, allocator<T>>;
+
+template<class T>
+using pinned_allocator = thrust::cuda::experimental::pinned_allocator<T>;
+
+template<class T>
+using host_vector = thrust::host_vector<T, pinned_allocator<T>>;
 
 template <class Policy, class Range1_t, class Range2_t>
 void copy(Policy p, const Range1_t& src, Range2_t& dst) {
@@ -52,6 +60,35 @@ void sync_streams(std::vector<cudaStream_t>& streams) {
     }
 }
 
+struct Streams {
+
+    Streams(size_t count)
+        : current_(0)
+        , streams_(create_streams(count)) {}
+
+    ~Streams() { destroy_streams(streams_); }
+
+    cudaStream_t get_next() {
+
+        if (current_ == streams_.size()){
+            current_ = 0;
+        }
+
+        current_++;
+        return streams_[current_ - 1];
+
+    }
+
+
+
+    void sync_all() { sync_streams(streams_); }
+
+private:
+    size_t current_;
+
+    std::vector<cudaStream_t> streams_;
+};
+
 template<class Vector_t>
 auto arithmetic1(const Vector_t& v1, const Vector_t& v2, const Vector_t& v3){
     using T = typename Vector_t::value_type;
@@ -66,17 +103,17 @@ struct Data {
         : n_elements(n_elements_)
         , n_kernels(n_kernels_)
         , results_device(n_kernels, NVec_t<element_t>(n_elements))
-        , results_host(n_kernels, std::vector<element_t>(n_elements))
-        , v1(n_elements)
-        , v2(n_elements)
-        , v3(n_elements)
+        , results_host(n_kernels, host_vector<element_t>(n_elements))
+        , v1(n_elements, 12.0)
+        , v2(n_elements, 13.0)
+        , v3(n_elements, 14.0)
         {}
 
     size_t n_elements;
     size_t n_kernels;
 
     std::vector<NVec_t<element_t>>              results_device;
-    std::vector<thrust::host_vector<element_t>> results_host;
+    std::vector<host_vector<element_t>> results_host;
     NVec_t<element_t> v1;
     NVec_t<element_t> v2;
     NVec_t<element_t> v3;
@@ -99,48 +136,66 @@ void copy_custom(T1 in, T2 out, size_t size)
 
 auto sequential(Data& data){
 
-    int N = data.n_elements;
-    int threads = 1024;
-    int blocks = (N + threads + 1) / threads;
     for (size_t i = 0; i < data.n_kernels; ++i){
         auto kernel = arithmetic1(data.v1, data.v2, data.v3);
-        //copy_custom
-        copy_custom<<<blocks, threads>>>(kernel.begin(), data.results_device[i].begin(), data.results_device[i].size());
-        //topaz::copy(kernel, data.results_device[i]);
+        topaz::copy(kernel, data.results_device[i]);
     }
+
+
     for (size_t i = 0; i < data.n_kernels; ++i){
         topaz::copy(data.results_device[i], data.results_host[i]);
     }
+
+
+    cudaDeviceSynchronize();
 
     return data.results_host;
 }
 
 
 
-auto streamed(Data& data){
+auto streamed(Data& data, Streams& streams){
 
-    size_t n_streams = data.n_kernels;
-    auto streams = create_streams(n_streams);
+
 
     int N = data.n_elements;
-    int threads = 1024;
+    int threads = 256; //1024;
     int blocks = (N + threads + 1) / threads;
 
     for (size_t i = 0; i < data.n_kernels; ++i){
+
+        auto stream = streams.get_next();
+
         auto kernel = arithmetic1(data.v1, data.v2, data.v3);
-        auto policy = thrust::cuda::par.on(streams[i]);
+        //auto policy = thrust::cuda::par.on(stream);
         //thrust::transform(policy, kernel.begin(), kernel.end(), data.results_device[i].begin(), NoOp{});
+        copy_custom<<<blocks, threads, 0, stream>>>(kernel.begin(), data.results_device[i].begin(), data.results_device[i].size());
 
-        copy_custom<<<blocks, threads, 0, streams[i]>>>(kernel.begin(), data.results_device[i].begin(), data.results_device[i].size());
-        //thrust::transform(kernel.begin(), kernel.end(), data.results_device[i].begin());
+        cudaMemcpyAsync(
+            data.results_host[i].data(),
+            thrust::raw_pointer_cast(data.results_device[i].data()),
+            sizeof(element_t) * data.n_elements,
+            cudaMemcpyDeviceToHost,
+            stream
+        );
     }
-    sync_streams(streams);
+
+    /*
     for (size_t i = 0; i < data.n_kernels; ++i){
-        copy(data.results_device[i], data.results_host[i]);
+
+        cudaMemcpyAsync(
+            data.results_host[i].data(),
+            thrust::raw_pointer_cast(data.results_device[i].data()),
+            sizeof(element_t) * data.n_elements,
+            cudaMemcpyDeviceToHost,
+            streams.get_next()
+        );
+        //copy(data.results_device[i], data.results_host[i]);
     }
+    */
+    streams.sync_all();
 
-
-    destroy_streams(streams);
+    //cudaDeviceSynchronize();
     return data.results_host;
 
 }
@@ -163,27 +218,63 @@ auto async(Data& data){
 
     }
 
-   for (auto& e : events){
-        e.wait();
-    }
+
+    Streams streams(8);
 
     for (size_t i = 0; i < data.n_kernels; ++i){
-        //events[i].wait();
-        topaz::copy(data.results_device[i], data.results_host[i]);
+        events[i].wait();
+        cudaMemcpyAsync(
+            data.results_host[i].data(),
+            thrust::raw_pointer_cast(data.results_device[i].data()),
+            sizeof(element_t) * data.n_elements,
+            cudaMemcpyDeviceToHost,
+            streams.get_next()
+        );
+
     }
+
+    streams.sync_all();
+
+    //cudaDeviceSynchronize();
+
     return data.results_host;
 
 }
 
-int main(){
-    size_t n_elements = 1E6;
-    size_t n_kernels = 20;
 
+auto createData() {
+    size_t n_elements = 1E5;
+    size_t n_kernels = 150;
     Data data(n_elements, n_kernels);
+    return data;
+}
 
-    //auto r1 = sequential(data);
-    auto r2 = streamed(data);
-    //auto r3 = async(data);
-    return 0;
+
+TEST_CASE("Sequential"){
+
+    auto data = createData();
+
+    BENCHMARK("Sequential"){
+        return sequential(data);
+    };
+}
+
+TEST_CASE("Streamed"){
+
+    auto data = createData();
+    Streams streams(2);
+    BENCHMARK("Streamed"){
+        return streamed(data, streams);
+    };
+
+}
+TEST_CASE("Async"){
+
+    auto data = createData();
+
+    BENCHMARK("Async"){
+        return async(data);
+    };
+
 
 }
