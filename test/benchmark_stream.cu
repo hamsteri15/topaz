@@ -12,6 +12,7 @@
 #include <thrust/async/transform.h>
 #include <thrust/transform.h>
 #include <thrust/system/cuda/experimental/pinned_allocator.h>
+
 template <typename T>
 struct uninitialized_allocator : thrust::device_malloc_allocator<T> {
     __host__ __device__ void construct(T* p) {}
@@ -31,6 +32,7 @@ using pinned_allocator = thrust::cuda::experimental::pinned_allocator<T>;
 
 template<class T>
 using host_vector = thrust::host_vector<T, pinned_allocator<T>>;
+//using host_vector = thrust::host_vector<T>;
 
 template <class Policy, class Range1_t, class Range2_t>
 void copy(Policy p, const Range1_t& src, Range2_t& dst) {
@@ -119,9 +121,6 @@ struct Data {
     NVec_t<element_t> v3;
 };
 
-struct NoOp{
-    CUDA_HOSTDEV double operator()(const double& d) {return d;}
-};
 
 
 template<class T1, class T2>
@@ -132,7 +131,13 @@ void copy_custom(T1 in, T2 out, size_t size)
   if (i < size) out[i] = in[i];
 }
 
-
+__global__ void test_kernel(double *x, int n)
+{
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    for (int i = tid; i < n; i += blockDim.x * gridDim.x) {
+        x[i] = sqrt(pow(3.14159,i));
+    }
+}
 
 auto sequential(Data& data){
 
@@ -143,18 +148,15 @@ auto sequential(Data& data){
 
 
     for (size_t i = 0; i < data.n_kernels; ++i){
-        topaz::copy(data.results_device[i], data.results_host[i]);
+        topaz::device_to_host(data.results_device[i], data.results_host[i]);
     }
 
 
-    cudaDeviceSynchronize();
-
-    return data.results_host;
 }
 
 
 
-auto streamed(Data& data, Streams& streams){
+auto streamed(Data& data){
 
 
 
@@ -162,44 +164,28 @@ auto streamed(Data& data, Streams& streams){
     int threads = 256; //1024;
     int blocks = (N + threads + 1) / threads;
 
+    Streams streams(8);
+
+
     for (size_t i = 0; i < data.n_kernels; ++i){
 
         auto stream = streams.get_next();
 
         auto kernel = arithmetic1(data.v1, data.v2, data.v3);
-        //auto policy = thrust::cuda::par.on(stream);
+        auto policy = thrust::cuda::par.on(stream);
         //thrust::transform(policy, kernel.begin(), kernel.end(), data.results_device[i].begin(), NoOp{});
-        copy_custom<<<blocks, threads, 0, stream>>>(kernel.begin(), data.results_device[i].begin(), data.results_device[i].size());
+        //thrust::copy(policy, kernel.begin(), kernel.end(), data.results_device[i].begin());
+        //thrust::copy(policy, )
 
-        /*
-        cudaMemcpyAsync(
-            data.results_host[i].data(),
-            thrust::raw_pointer_cast(data.results_device[i].data()),
-            sizeof(element_t) * data.n_elements,
-            cudaMemcpyDeviceToHost,
+        topaz::parallel_force_evaluate(policy, kernel, data.results_device[i]);
+
+        topaz::async_device_to_host(
+            data.results_device[i],
+            data.results_host[i],
             stream
         );
-        */
 
     }
-
-    /*
-    for (size_t i = 0; i < data.n_kernels; ++i){
-
-        cudaMemcpyAsync(
-            data.results_host[i].data(),
-            thrust::raw_pointer_cast(data.results_device[i].data()),
-            sizeof(element_t) * data.n_elements,
-            cudaMemcpyDeviceToHost,
-            streams.get_next()
-        );
-        //copy(data.results_device[i], data.results_host[i]);
-    }
-    */
-    streams.sync_all();
-
-    //cudaDeviceSynchronize();
-    return data.results_host;
 
 }
 
@@ -216,7 +202,7 @@ auto async(Data& data){
         auto kernel = arithmetic1(data.v1, data.v2, data.v3);
 
         events.push_back(thrust::async::transform(
-            kernel.begin(), kernel.end(), data.results_device[i].begin(), NoOp{}
+            kernel.begin(), kernel.end(), data.results_device[i].begin(), topaz::detail::NoOp{}
         ));
 
     }
@@ -225,22 +211,17 @@ auto async(Data& data){
     Streams streams(8);
 
     for (size_t i = 0; i < data.n_kernels; ++i){
+        auto stream = streams.get_next();
         events[i].wait();
-        cudaMemcpyAsync(
-            data.results_host[i].data(),
-            thrust::raw_pointer_cast(data.results_device[i].data()),
-            sizeof(element_t) * data.n_elements,
-            cudaMemcpyDeviceToHost,
-            streams.get_next()
+        topaz::async_device_to_host(
+            data.results_device[i],
+            data.results_host[i],
+            stream
         );
-
     }
-
-    streams.sync_all();
 
     //cudaDeviceSynchronize();
 
-    return data.results_host;
 
 }
 
@@ -258,16 +239,19 @@ TEST_CASE("Sequential"){
     auto data = createData();
 
     BENCHMARK("Sequential"){
-        return sequential(data);
+        sequential(data);
+        cudaDeviceSynchronize();
+        return data.results_host.back();
     };
 }
 
 TEST_CASE("Streamed"){
 
     auto data = createData();
-    Streams streams(4);
     BENCHMARK("Streamed"){
-        return streamed(data, streams);
+        streamed(data);
+        cudaDeviceSynchronize();
+        return data.results_host.back();
     };
 
 }
@@ -277,7 +261,9 @@ TEST_CASE("Async"){
     auto data = createData();
 
     BENCHMARK("Async"){
-        return async(data);
+        async(data);
+        cudaDeviceSynchronize();
+        return data.results_host.back();
     };
 
 

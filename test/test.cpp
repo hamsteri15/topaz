@@ -7,6 +7,7 @@
 #ifdef __CUDACC__
 #include <thrust/device_vector.h>
 #include <thrust/device_malloc_allocator.h>
+#include <thrust/host_vector.h>
 template<class T>
 using vector_t = thrust::device_vector<T>;
 
@@ -179,6 +180,7 @@ TEST_CASE("Range"){
 
 
 }
+
 
 struct PlusTriplet{
 
@@ -405,7 +407,7 @@ TEST_CASE("NumericArray"){
     SECTION("Arithmetic"){
 
         SECTION("plus, minus, divides, multiplies"){
-        
+
             const NVec_t<int> v1{1,2,3};
             const NVec_t<int> v2{4,5,6};
 
@@ -430,19 +432,19 @@ TEST_CASE("NumericArray"){
             const NVec_t<int> v2{4,5,6};
             auto m1 = topaz::max(v1, v2);
             CHECK(std::vector<int>{m1.begin(), m1.end()} == std::vector<int>{4, 8, 6});
-            
+
             auto m2 = topaz::max(v1, 3);
             CHECK(std::vector<int>{m2.begin(), m2.end()} == std::vector<int>{3, 8, 3});
-            
+
             auto m3 = topaz::max(3, v1);
             CHECK(std::vector<int>{m3.begin(), m3.end()} == std::vector<int>{3, 8, 3});
-            
+
             auto m4 = topaz::min(v1, v2);
             CHECK(std::vector<int>{m4.begin(), m4.end()} == std::vector<int>{1, 5, 3});
-            
+
             auto m5 = topaz::min(v1, 3);
             CHECK(std::vector<int>{m5.begin(), m5.end()} == std::vector<int>{1, 3, 3});
-            
+
             auto m6 = topaz::min(3, v1);
             CHECK(std::vector<int>{m6.begin(), m6.end()} == std::vector<int>{1, 3, 3});
 
@@ -555,6 +557,74 @@ TEST_CASE("NumericArray"){
     }
 
 }
+
+#ifdef __CUDACC__
+TEST_CASE("Cuda only"){
+
+    SECTION("parallel_force_evaluate"){
+
+        const NVec_t<int> v1{1,2,3};
+        const NVec_t<int> v2{4,5,6};
+        NVec_t<int> result{0,0,0};
+        auto kernel = v1 + v2;
+
+
+            cudaStream_t s;
+            cudaStreamCreate(&s);
+            auto policy = thrust::cuda::par.on(s);
+            topaz::parallel_force_evaluate(
+                thrust::cuda::par.on(s), kernel, result
+            );
+            cudaStreamSynchronize(s);
+            cudaStreamDestroy(s);
+
+
+
+        CHECK(std::vector<int>{result.begin(), result.end()}
+            ==std::vector<int>{5,7,9});
+
+
+    }
+
+
+    SECTION("memcopies"){
+
+        SECTION("serial"){
+            thrust::host_vector<int> v1 = std::vector<int>{1,2,3};
+            thrust::device_vector<int> v2 = std::vector<int>{0,0,0};
+            thrust::host_vector<int> v3 = std::vector<int>{0,0,0};
+
+            topaz::host_to_device(v1, v2);
+
+            topaz::device_to_host(v2, v3);
+
+            CHECK(std::vector<int>{v3.begin(), v3.end()} ==
+                std::vector<int>{1, 2, 3});
+
+        }
+
+        SECTION("async"){
+            thrust::host_vector<int> v1 = std::vector<int>{1,2,3};
+            thrust::device_vector<int> v2 = std::vector<int>{0,0,0};
+            thrust::host_vector<int> v3 = std::vector<int>{0,0,0};
+
+            cudaStream_t s;
+            cudaStreamCreate(&s);
+
+            topaz::async_host_to_device(v1, v2, s);
+
+            topaz::async_device_to_host(v2, v3, s);
+
+            cudaStreamSynchronize(s);
+            cudaStreamDestroy(s);
+
+            CHECK(std::vector<int>{v3.begin(), v3.end()} ==
+                std::vector<int>{1, 2, 3});
+
+        }
+    }
+}
+#endif
 
 TEST_CASE("NumericSoa"){
 

@@ -16,3 +16,8 @@
 #include "numeric_array.hpp"
 #include "numeric_soa.hpp"
 #include "arithmetic_ops.hpp"
+#include "parallel_force_evaluate.hpp"
+
+#ifdef __CUDACC__
+#include "device_host_copy.hpp"
+#endif

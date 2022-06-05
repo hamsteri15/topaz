@@ -8,7 +8,7 @@
 namespace topaz {
 
 #ifdef DEBUG
-constexpr CUDA_HOSTDEV void runtime_assert(bool condition, const char* msg) {
+constexpr void runtime_assert(bool condition, const char* msg) {
     if (!condition) throw std::runtime_error(msg);
 }
 #else
