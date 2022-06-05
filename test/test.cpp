@@ -128,6 +128,23 @@ TEST_CASE("Range"){
 
     }
 
+    SECTION("async_copy()"){
+
+        vector_t<int> v1 = std::vector<int>{1,2,3};
+        vector_t<int> v2 = std::vector<int>{1,1,1};
+        vector_t<int> v3 = std::vector<int>{0,0,0};
+
+        auto event1 = async_copy(v1, v2);
+        auto event2 = async_copy(event1, v1, v3);
+
+        event2.wait();
+
+        CHECK(std::vector<int>(v2.begin(), v2.end()) == std::vector<int>{1,2,3});
+        CHECK(std::vector<int>(v3.begin(), v3.end()) == std::vector<int>{1,2,3});
+
+
+    }
+
 
     SECTION("transform()"){
 
@@ -283,12 +300,8 @@ TEST_CASE("ChunkedRange"){
 
 
     }
-
-
-
-
-
 }
+
 
 TEST_CASE("NumericArray"){
 
@@ -558,6 +571,7 @@ TEST_CASE("NumericArray"){
 
 }
 
+
 #ifdef __CUDACC__
 TEST_CASE("Cuda only"){
 
@@ -571,7 +585,6 @@ TEST_CASE("Cuda only"){
 
             cudaStream_t s;
             cudaStreamCreate(&s);
-            auto policy = thrust::cuda::par.on(s);
             topaz::parallel_force_evaluate(
                 thrust::cuda::par.on(s), kernel, result
             );

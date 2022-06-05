@@ -143,28 +143,20 @@ auto sequential(Data& data){
 
     for (size_t i = 0; i < data.n_kernels; ++i){
         auto kernel = arithmetic1(data.v1, data.v2, data.v3);
-        topaz::copy(kernel, data.results_device[i]);
+        topaz::copy(kernel, data.results_host[i]);
     }
-
-
-    for (size_t i = 0; i < data.n_kernels; ++i){
-        topaz::device_to_host(data.results_device[i], data.results_host[i]);
-    }
-
-
 }
 
 
 
-auto streamed(Data& data){
+auto streamed(Data& data, Streams& streams){
 
 
-
+    /*
     int N = data.n_elements;
     int threads = 256; //1024;
     int blocks = (N + threads + 1) / threads;
-
-    Streams streams(8);
+    */
 
 
     for (size_t i = 0; i < data.n_kernels; ++i){
@@ -172,12 +164,12 @@ auto streamed(Data& data){
         auto stream = streams.get_next();
 
         auto kernel = arithmetic1(data.v1, data.v2, data.v3);
-        auto policy = thrust::cuda::par.on(stream);
-        //thrust::transform(policy, kernel.begin(), kernel.end(), data.results_device[i].begin(), NoOp{});
-        //thrust::copy(policy, kernel.begin(), kernel.end(), data.results_device[i].begin());
-        //thrust::copy(policy, )
 
-        topaz::parallel_force_evaluate(policy, kernel, data.results_device[i]);
+        //copy_custom<<<blocks, threads, 0, stream>>>(kernel.begin(), data.results_device[i].begin(), N);
+
+        topaz::parallel_force_evaluate(thrust::cuda::par.on(stream),
+                                       kernel,
+                                      data.results_device[i]);
 
         topaz::async_device_to_host(
             data.results_device[i],
@@ -195,32 +187,28 @@ auto streamed(Data& data){
 auto async(Data& data){
 
 
+
     std::vector<thrust::device_event> events;
 
     for (size_t i = 0; i < data.n_kernels; ++i){
 
+
         auto kernel = arithmetic1(data.v1, data.v2, data.v3);
 
-        events.push_back(thrust::async::transform(
-            kernel.begin(), kernel.end(), data.results_device[i].begin(), topaz::detail::NoOp{}
-        ));
-
-    }
+        auto e = topaz::async_copy(kernel, data.results_device[i]);
 
 
-    Streams streams(8);
-
-    for (size_t i = 0; i < data.n_kernels; ++i){
-        auto stream = streams.get_next();
-        events[i].wait();
-        topaz::async_device_to_host(
-            data.results_device[i],
-            data.results_host[i],
-            stream
+        events.push_back(
+            topaz::async_copy(e, data.results_device[i], data.results_host[i])
         );
+
     }
 
-    //cudaDeviceSynchronize();
+
+
+    for (auto& e : events){
+        e.wait();
+    }
 
 
 }
@@ -234,6 +222,25 @@ auto createData() {
 }
 
 
+bool result_ok(const Data& data){
+
+    auto v1 = data.v1;
+    auto v2 = data.v2;
+    auto v3 = data.v3;
+
+    auto kernel = arithmetic1(v1, v2, v3);
+
+    host_vector<element_t> result (kernel.begin(), kernel.end());
+
+
+    for (const auto& v : data.results_host){
+        if (v != result) {return false;}
+    }
+
+    return true;
+
+}
+
 TEST_CASE("Sequential"){
 
     auto data = createData();
@@ -243,16 +250,20 @@ TEST_CASE("Sequential"){
         cudaDeviceSynchronize();
         return data.results_host.back();
     };
+
+    CHECK(result_ok(data));
 }
 
 TEST_CASE("Streamed"){
 
     auto data = createData();
+    Streams streams(8);
     BENCHMARK("Streamed"){
-        streamed(data);
+        streamed(data, streams);
         cudaDeviceSynchronize();
         return data.results_host.back();
     };
+    CHECK(result_ok(data));
 
 }
 
@@ -260,11 +271,13 @@ TEST_CASE("Async"){
 
     auto data = createData();
 
+
     BENCHMARK("Async"){
         async(data);
         cudaDeviceSynchronize();
         return data.results_host.back();
     };
+    CHECK(result_ok(data));
 
 
 }
