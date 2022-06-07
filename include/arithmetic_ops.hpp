@@ -119,6 +119,15 @@ struct Erf {
     }
 };
 
+struct Cbrt {
+
+    template <class T>
+    inline CUDA_HOSTDEV auto operator()(const T& t) const
+        -> decltype(::cbrt(t)) {
+        return ::cbrt(t);
+    }
+};
+
 
 
 
@@ -213,6 +222,11 @@ inline CUDA_HOSTDEV auto log(const T& t) {
 template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
 inline CUDA_HOSTDEV auto erf(const T& t) {
     return transform(t, Erf{});
+}
+
+template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+inline CUDA_HOSTDEV auto cbrt(const T& t) {
+    return transform(t, Cbrt{});
 }
 
 } // namespace topaz

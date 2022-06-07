@@ -749,3 +749,64 @@ TEST_CASE("NumericSoa"){
     }
 
 }
+
+
+struct Vec3{
+
+    Vec3() = default;
+
+    Vec3(std::initializer_list<double> l) {
+        std::copy(l.begin(), l.end(), data_);
+    }
+
+    double data_[3];
+    //std::array<double, 3> data_;
+
+};
+
+std::ostream& operator<<(std::ostream& os, const Vec3& v){
+    os << "{ ";
+    os << v.data_[0] << " ";
+    os << v.data_[1] << " ";
+    os << v.data_[2] << " ";
+    os << "}";
+    return os;
+}
+
+bool operator==(const Vec3& lhs, const Vec3& rhs){
+    for (size_t i = 0; i < 3; ++i){
+        if (lhs.data_[i] != rhs.data_[i]){
+            return false;
+        }
+    }
+    return true;
+}
+
+CUDA_HOSTDEV
+auto operator+(const Vec3& lhs, const Vec3& rhs){
+    Vec3 ret;
+    for (size_t i = 0; i < 3; ++i){
+        ret.data_[i] = lhs.data_[i] + rhs.data_[i];
+    }
+    return ret;    
+}
+
+
+TEST_CASE("Custom type Numeric Array"){
+
+    SECTION("Arithmetic"){
+        NVec_t<Vec3> v1(3, Vec3{1,2,3});
+        NVec_t<Vec3> v2(3, Vec3{4,5,6});
+
+        NVec_t<Vec3> v3 = v1 + v2;
+
+        CHECK(v3[0] == Vec3{5, 7, 9});
+        CHECK(v3[1] == Vec3{5, 7, 9});
+
+        //Vec3 v1 = {1.0, 2.0, 3.0};
+        //Vec
+    }
+
+
+
+}
