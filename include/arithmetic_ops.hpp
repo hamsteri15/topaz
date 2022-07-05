@@ -40,7 +40,7 @@ struct Divides {
     }
 };
 
-template<class T> 
+template<class T>
 inline CUDA_HOSTDEV const T& adl_max(const T& a, const T& b)
 {
     return (a < b) ? b : a;
@@ -55,7 +55,7 @@ struct Max {
 };
 
 
-template<class T> 
+template<class T>
 inline CUDA_HOSTDEV const T& adl_min(const T& a, const T& b)
 {
     return (b < a) ? b : a;
