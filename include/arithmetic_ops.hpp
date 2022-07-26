@@ -9,32 +9,32 @@
 namespace topaz {
 
 struct Plus {
-    template <class T>
-    inline CUDA_HOSTDEV auto operator()(const T& lhs, const T& rhs) const
+    template <class T1, class T2>
+    inline CUDA_HOSTDEV auto operator()(const T1& lhs, const T2& rhs) const
         -> decltype(lhs + rhs) {
         return lhs + rhs;
     }
 };
 
 struct Minus {
-    template <class T>
-    inline CUDA_HOSTDEV auto operator()(const T& lhs, const T& rhs) const
+    template <class T1, class T2>
+    inline CUDA_HOSTDEV auto operator()(const T1& lhs, const T2& rhs) const
         -> decltype(lhs - rhs) {
         return lhs - rhs;
     }
 };
 
 struct Multiplies {
-    template <class T>
-    inline CUDA_HOSTDEV auto operator()(const T& lhs, const T& rhs) const
+    template <class T1, class T2>
+    inline CUDA_HOSTDEV auto operator()(const T1& lhs, const T2& rhs) const
         -> decltype(lhs * rhs) {
         return lhs * rhs;
     }
 };
 
 struct Divides {
-    template <class T>
-    inline CUDA_HOSTDEV auto operator()(const T& lhs, const T& rhs) const
+    template <class T1, class T2>
+    inline CUDA_HOSTDEV auto operator()(const T1& lhs, const T2& rhs) const
         -> decltype(lhs / rhs) {
         return lhs / rhs;
     }
