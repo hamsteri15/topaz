@@ -24,3 +24,18 @@ using NVec_t = topaz::NumericArray<T, std::allocator<T>>;
 
 
 #endif
+
+template<class T>
+auto make_vector(std::initializer_list<T> l){
+    vector_t<T> v = std::vector<T>(l);
+    return v;
+}
+
+#ifdef __CUDACC__
+template<class T>
+bool operator==(const vector_t<T>& lhs, const std::vector<T>& rhs){
+
+    std::vector<T> temp(lhs.begin(), lhs.end());
+    return temp == rhs;
+}
+#endif

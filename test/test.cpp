@@ -27,7 +27,7 @@ TEST_CASE("Range"){
 
 
     SECTION("make_range"){
-        vector_t<int> v = std::vector<int>{1,2,3};
+        vector_t<int> v = make_vector({1,2,3});
         auto rng = make_range(v.begin(), v.end());
 
         CHECK(*rng.begin() == 1);
@@ -39,9 +39,9 @@ TEST_CASE("Range"){
 
     SECTION("make_zip_range"){
 
-        vector_t<int> v1 = std::vector<int>{1,2,3};
-        vector_t<double> v2 = std::vector<double>{4.0,5.0,6.0};
-        const vector_t<int> v3 = std::vector<int>{7,8,9};
+        vector_t<int> v1 = make_vector({1,2,3});
+        vector_t<double> v2 = make_vector({4.0,5.0,6.0});
+        const vector_t<int> v3 = make_vector({7,8,9});
 
         auto z1 = make_zip_range(v1, v3);
         auto z2 = make_zip_range(v2, v3);
@@ -54,16 +54,12 @@ TEST_CASE("Range"){
 
         std::vector<int> v = {1,2,3};
         auto op = [](int i) {return i + 1;};
-
         auto tr = detail::make_transform_iterator(v.begin(), op);
-
-
         CHECK(tr[1] == 3);
 
     }
 
     SECTION("make_constant_range"){
-
 
         auto r = make_constant_range(4, 4);
         CHECK(r[0] == 4);
@@ -78,21 +74,6 @@ TEST_CASE("Range"){
         }
 
         SECTION("binary"){
-            /*
-            const vector_t<int> v1 = std::vector<int>{1,2,3};
-            vector_t<int> v2 = std::vector<int>{4,5,6};
-
-            auto z1 = zip(v1, v2);
-
-            auto tuple1 = z1[0];
-            CHECK(std::get<0>(tuple1) == 1);
-            CHECK(std::get<1>(tuple1) == 4);
-
-            auto z2 = zip(v2, v1);
-            auto tuple2 = z2[1];
-            CHECK(std::get<0>(tuple2) == 5);
-            CHECK(std::get<1>(tuple2) == 2);
-            */
         }
 
 
@@ -100,17 +81,17 @@ TEST_CASE("Range"){
 
     SECTION("async_copy()"){
 
-        vector_t<int> v1 = std::vector<int>{1,2,3};
-        vector_t<int> v2 = std::vector<int>{1,1,1};
-        vector_t<int> v3 = std::vector<int>{0,0,0};
+        vector_t<int> v1 = make_vector({1,2,3});
+        vector_t<int> v2 = make_vector({1,1,1});
+        vector_t<int> v3 = make_vector({0,0,0});
 
         auto event1 = async_copy(v1, v2);
         auto event2 = async_copy(event1, v1, v3);
 
         event2.wait();
 
-        CHECK(std::vector<int>(v2.begin(), v2.end()) == std::vector<int>{1,2,3});
-        CHECK(std::vector<int>(v3.begin(), v3.end()) == std::vector<int>{1,2,3});
+        CHECK(v2 == std::vector<int>{1,2,3});
+        CHECK(v3 == std::vector<int>{1,2,3});
 
 
     }
