@@ -3,32 +3,7 @@
 #include "catch.hpp"
 
 #include "all.hpp"
-
-#ifdef __CUDACC__
-#include <thrust/device_vector.h>
-#include <thrust/device_malloc_allocator.h>
-#include <thrust/host_vector.h>
-template<class T>
-using vector_t = thrust::device_vector<T>;
-
-template<class T>
-using NVec_t = topaz::NumericArray<T, thrust::device_malloc_allocator<T>>;
-
-template<size_t N, class T>
-using NSoa_t = topaz::NumericSoa<N, T, thrust::device_malloc_allocator<T>>;
-
-#else
-#include <vector>
-template<class T>
-using vector_t = std::vector<T>;
-
-template<class T>
-using NVec_t = topaz::NumericArray<T, std::allocator<T>>;
-
-template<size_t N, class T>
-using NSoa_t = topaz::NumericSoa<N, T, std::allocator<T>>;
-
-#endif
+#include "typedefs.hpp"
 
 TEST_CASE("Tuple"){
 
@@ -37,7 +12,7 @@ TEST_CASE("Tuple"){
     auto tpl = adl_make_tuple(int(1), double(4), float(5));
     CHECK(get<0>(tpl) == int(1));
 
-    static_assert(tuple_size<decltype(tpl)>::value == size_t(3));
+    static_assert(tuple_size<decltype(tpl)>::value == size_t(3), "constexpr tuple_size fails");
 
     auto s_tpl = to_std_tuple(tpl);
     CHECK(std::get<0>(s_tpl) == int(1));
@@ -72,11 +47,6 @@ TEST_CASE("Range"){
         auto z2 = make_zip_range(v2, v3);
         auto z3 = make_zip_range(v3, v3);
 
-        /*
-        CHECK(std::get<0>(z1[0]) == 1);
-        CHECK(std::get<0>(z2[1]) == 5.0);
-        CHECK(std::get<1>(z3[0]) == 7);
-        */
     }
 
 
@@ -209,98 +179,6 @@ struct PlusTriplet{
 
 };
 
-TEST_CASE("ChunkedRange"){
-
-    using namespace topaz;
-
-    SECTION("make_chunked_range"){
-
-        vector_t<int> v = std::vector<int>{1,2,3,4};
-
-        auto r1 = make_chunked_range<2>(v);
-        //CHECK(r1[0] == 1);
-        CHECK(chunk_size(r1) == 2);
-
-        //REQUIRE_THROWS(make_chunked_range<3>(v));
-
-    }
-
-    SECTION("get_chunk"){
-        vector_t<int> v = std::vector<int>{1,2,3,4};
-        auto r1 = make_chunked_range<2>(v);
-        auto c1 = get_chunk<0>(r1);
-        auto c2 = get_chunk<1>(r1);
-        CHECK(size(c1) == 2);
-        CHECK(size(c2) == 2);
-        CHECK(c1[0] == 1);
-        CHECK(c1[1] == 2);
-        CHECK(c2[0] == 3);
-        CHECK(c2[1] == 4);
-    }
-
-
-    SECTION("get_chunks"){
-       const vector_t<int> v = std::vector<int>{1,2,3,4};
-
-        auto tpl = get_chunks<2>(v);
-        auto c1 = get<0>(tpl);
-        auto c2 = get<1>(tpl);
-        CHECK(size(c1) == 2);
-        CHECK(size(c2) == 2);
-        CHECK(c1[0] == 1);
-        CHECK(c1[1] == 2);
-        CHECK(c2[0] == 3);
-        CHECK(c2[1] == 4);
-
-    }
-
-
-    SECTION("zip_begins"){
-
-
-       const vector_t<int> v = std::vector<int>{1,2,3,4};
-
-        auto it = zip_begins<2>(v);
-
-        auto tpl1 = *it++;
-        CHECK(get<0>(tpl1) == 1);
-        CHECK(get<1>(tpl1) == 3);
-
-
-    }
-
-
-
-    SECTION("chunked_reduce"){
-
-        SECTION("test1"){
-
-            const vector_t<int> v = std::vector<int>{1,2,3,4};
-
-            auto temp = chunked_reduce<2>(v, Plus{});
-
-            CHECK(adl_size(temp) == 2);
-            CHECK(temp[0] == 1 + 3);
-            CHECK(temp[1] == 2 + 4);
-
-        }
-
-        SECTION("test2"){
-
-            const vector_t<int> v = std::vector<int>{1,2,3,4,5,6};
-
-            auto temp = chunked_reduce<3>(v, PlusTriplet{});
-
-            CHECK(adl_size(temp) == 2);
-            CHECK(temp[0] == 1 + 3 + 5);
-            CHECK(temp[1] == 2 + 4 + 6);
-
-        }
-
-
-
-    }
-}
 
 
 TEST_CASE("NumericArray"){
@@ -566,185 +444,6 @@ TEST_CASE("NumericArray"){
                     == std::vector<double>{erf(1.0), erf(2.0), erf(3.0)});
 
         }
-
-    }
-
-}
-
-
-#ifdef __CUDACC__
-TEST_CASE("Cuda only"){
-
-    SECTION("parallel_force_evaluate"){
-
-        const NVec_t<int> v1{1,2,3};
-        const NVec_t<int> v2{4,5,6};
-        NVec_t<int> result{0,0,0};
-        auto kernel = v1 + v2;
-
-
-            cudaStream_t s;
-            cudaStreamCreate(&s);
-            topaz::parallel_force_evaluate(
-                thrust::cuda::par.on(s), kernel, result
-            );
-            cudaStreamSynchronize(s);
-            cudaStreamDestroy(s);
-
-
-
-        CHECK(std::vector<int>{result.begin(), result.end()}
-            ==std::vector<int>{5,7,9});
-
-
-    }
-
-
-    SECTION("memcopies"){
-
-        SECTION("serial"){
-            thrust::host_vector<int> v1 = std::vector<int>{1,2,3};
-            thrust::device_vector<int> v2 = std::vector<int>{0,0,0};
-            thrust::host_vector<int> v3 = std::vector<int>{0,0,0};
-
-            topaz::host_to_device(v1, v2);
-
-            topaz::device_to_host(v2, v3);
-
-            CHECK(std::vector<int>{v3.begin(), v3.end()} ==
-                std::vector<int>{1, 2, 3});
-
-        }
-
-        SECTION("async"){
-            thrust::host_vector<int> v1 = std::vector<int>{1,2,3};
-            thrust::device_vector<int> v2 = std::vector<int>{0,0,0};
-            thrust::host_vector<int> v3 = std::vector<int>{0,0,0};
-
-            cudaStream_t s;
-            cudaStreamCreate(&s);
-
-            topaz::async_host_to_device(v1, v2, s);
-
-            topaz::async_device_to_host(v2, v3, s);
-
-            cudaStreamSynchronize(s);
-            cudaStreamDestroy(s);
-
-            CHECK(std::vector<int>{v3.begin(), v3.end()} ==
-                std::vector<int>{1, 2, 3});
-
-        }
-    }
-}
-#endif
-
-TEST_CASE("NumericSoa"){
-
-
-    using namespace topaz;
-
-    SECTION("Constructors"){
-
-        REQUIRE_NOTHROW(NSoa_t<3, int>());
-        REQUIRE_NOTHROW(NSoa_t<3, int>(50));
-
-        NVec_t<int> a(10, 1);
-        NVec_t<int> b(10, 2);
-        NVec_t<int> c(7, 3);
-
-        REQUIRE_NOTHROW(NSoa_t<2, int> (std::array<NVec_t<int>, 2>{a,b}));
-        REQUIRE_THROWS(NSoa_t<2, int> (std::array<NVec_t<int>, 2>{a,c}));
-
-        NSoa_t<2, int> soa(std::array<NVec_t<int>, 2>{a,b});
-
-
-        for (auto it = soa.zipped_begin(); it != soa.zipped_end(); ++it){
-            REQUIRE(get<0>(*it) == 1);
-            REQUIRE(get<1>(*it) == 2);
-        }
-
-
-
-    }
-
-    SECTION("begin/end"){
-
-        NSoa_t<3, int> soa(10);
-        auto begin = soa.begin();
-        auto end = soa.end();
-        REQUIRE_NOTHROW(++begin);
-        REQUIRE_NOTHROW(--end);
-
-
-        const NSoa_t<3, int> soa2(10);
-        auto z_begin1 = soa2.zipped_begin();
-        auto z_begin2 = soa.zipped_begin();
-
-
-        CHECK(get<0>(*z_begin1) == 0);
-        CHECK(get<0>(*z_begin2) == 0);
-
-        auto z_end1 = soa2.zipped_end();
-        auto z_end2 = soa.zipped_end();
-
-        --z_end1;
-        --z_end2;
-
-        CHECK(get<0>(*z_end1) == 0);
-        CHECK(get<0>(*z_end2) == 0);
-
-        for (auto it = soa.zipped_begin(); it != soa.zipped_end(); ++it){
-            *it = adl_make_tuple(1,2,3);
-        }
-
-
-        //CHECK(get<0>(t1) == 0);
-
-
-
-    }
-
-    SECTION("Access"){
-        NSoa_t<3, int> soa(10);
-        for (auto it = soa.zipped_begin(); it != soa.zipped_end(); ++it){
-            *it = adl_make_tuple(1,2,3);
-        }
-        auto tpl = get_chunks<3>(soa);
-        auto x = get<0>(tpl);
-        auto y = get<1>(tpl);
-        auto z = get<2>(tpl);
-        CHECK(x[1] == 1);
-        CHECK(y[1] == 2);
-        CHECK(z[1] == 3);
-
-    }
-
-
-
-    SECTION("transform"){
-        /*
-        NSoa_t<3, int> soa(10);
-
-
-        auto op = [](Tuple<int, int, int> t) {
-            return adl_make_tuple(1,2,3);
-        };
-
-        auto tra_rng = make_transform_range(soa, op);
-
-        CHECK(get<0>(tra_rng[1]) == 1);
-        CHECK(get<1>(tra_rng[1]) == 2);
-        CHECK(get<2>(tra_rng[1]) == 3);
-        */
-
-    }
-
-    SECTION("arithmetic"){
-        NSoa_t<3, int> s1(10);
-        NSoa_t<3, int> s2(10);
-
-        auto s3 = s1 + s2;
 
     }
 
