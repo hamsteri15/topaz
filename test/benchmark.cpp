@@ -2,7 +2,7 @@
 #define CATCH_CONFIG_MAIN // This tells the catch header to generate a main
 #include "catch.hpp"
 
-#include "all.hpp"
+#include "topaz.hpp"
 
 #ifdef __CUDACC__
 #include <thrust/device_vector.h>
