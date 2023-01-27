@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 #include <thrust/iterator/constant_iterator.h>
 #else
 #include <boost/iterator/iterator_facade.hpp>
@@ -8,7 +8,7 @@
 
 namespace topaz {
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 template <class T>
 using constant_iterator = thrust::constant_iterator<T>;
 #else

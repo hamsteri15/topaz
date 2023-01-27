@@ -5,7 +5,7 @@
 #include "traits.hpp"
 #include "transform.hpp"
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 #include <thrust/detail/vector_base.h>
 #else
 #include <vector>
@@ -13,7 +13,7 @@
 
 namespace topaz {
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 template <class T, class Allocator>
 using vector_base_type = thrust::detail::vector_base<T, Allocator>;
 #else

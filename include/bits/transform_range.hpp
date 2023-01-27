@@ -2,7 +2,7 @@
 
 #include "range.hpp"
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 #include <thrust/iterator/transform_iterator.h>
 #else
 #include <boost/iterator/transform_iterator.hpp>
@@ -14,7 +14,7 @@ namespace topaz {
 
 namespace detail {
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 
     template <class Func, class Iter>
     using transform_iterator = thrust::transform_iterator<Func, Iter>;

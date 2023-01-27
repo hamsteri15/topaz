@@ -2,7 +2,7 @@
 
 #include "range.hpp"
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 #include <thrust/async/copy.h>
 #include <thrust/copy.h>
 #else
@@ -12,7 +12,7 @@
 
 namespace topaz {
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 
 template <class Range1_t, class Range2_t>
 void copy(const Range1_t& src, Range2_t& dst) {

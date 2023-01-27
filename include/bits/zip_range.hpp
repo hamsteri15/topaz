@@ -2,7 +2,7 @@
 
 #include "range.hpp"
 #include "tuple.hpp"
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 #include <thrust/iterator/zip_iterator.h>
 #else
 #include <boost/iterator/zip_iterator.hpp>
@@ -12,7 +12,7 @@ namespace topaz {
 namespace detail{
 
 
-    #ifdef __CUDACC__
+    #ifdef __NVIDIA_COMPILER__
 
         template<class T>
         using zip_iterator = thrust::zip_iterator<T>;

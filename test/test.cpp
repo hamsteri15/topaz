@@ -4,7 +4,7 @@
 
 #include "topaz.hpp"
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 #include <thrust/device_vector.h>
 #include <thrust/device_malloc_allocator.h>
 #include <thrust/host_vector.h>
@@ -445,7 +445,7 @@ TEST_CASE("NumericArray"){
 }
 
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 TEST_CASE("Cuda only"){
 
     SECTION("parallel_force_evaluate"){

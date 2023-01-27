@@ -2,7 +2,7 @@
 
 #include <tuple> //std::tuple
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 #include <thrust/tuple.h>
 #else
 #include "boost/tuple/tuple.hpp"
@@ -14,7 +14,7 @@
 namespace topaz {
 
 
-    #ifdef __CUDACC__
+    #ifdef __NVIDIA_COMPILER__
 
         template<class... Types>
         using Tuple = thrust::tuple<Types...>;

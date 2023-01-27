@@ -1,7 +1,11 @@
 #pragma once
 
 
-#ifdef __CUDACC__
+#if defined(__NVCOMPILER) || defined(__NVCC__)
+    #define __NVIDIA_COMPILER__
+#endif
+
+#ifdef __NVIDIA_COMPILER__
 #define CUDA_HOSTDEV __host__ __device__
 #else
 #define CUDA_HOSTDEV
@@ -16,6 +20,6 @@
 #include "bits/arithmetic_ops.hpp"
 #include "bits/parallel_force_evaluate.hpp"
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 #include "bits/device_host_copy.hpp"
 #endif

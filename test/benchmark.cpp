@@ -4,7 +4,7 @@
 
 #include "topaz.hpp"
 
-#ifdef __CUDACC__
+#ifdef __NVIDIA_COMPILER__
 #include <thrust/device_vector.h>
 #include <thrust/device_malloc_allocator.h>
 template<class T>
