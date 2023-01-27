@@ -3,7 +3,7 @@
 
 namespace topaz {
 
-#ifdef __CUDACC__
+#ifdef __NVCC__
 #define DISABLE_HOST_DEV_WARNING #pragma nv_exec_check_disable
 #else
 #define DISABLE_HOST_DEV_WARNING
