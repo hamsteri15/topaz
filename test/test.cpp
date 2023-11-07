@@ -66,6 +66,22 @@ TEST_CASE("constant_iterator"){
 
 }
 
+TEST_CASE("transform_iterator"){
+
+    using namespace topaz;
+
+
+    auto op = [](int i) {return i + 1;};
+
+    vector_t<int> v = std::vector<int>{1,2,3};
+    auto r = make_transform_range(v.begin(), v.begin() + 1, op);
+    vector_t<int> v2(r.begin(), r.end());
+    CHECK(v2[0] == 2);
+    CHECK(v2.size() == 1);
+
+}
+
+
 
 TEST_CASE("Range"){
 

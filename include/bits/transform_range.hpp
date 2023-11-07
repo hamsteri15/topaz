@@ -1,7 +1,6 @@
 #pragma once
 
 #include "range.hpp"
-#include "zip_range.hpp"
 #include <iterator>
 #include <type_traits>
 
@@ -31,11 +30,7 @@ public:
     Iter m_it;
     Func m_func;
 
-    using my_type = transform_iterator<Func, Iter>;
-
-    transform_iterator() = default;
-
-    transform_iterator(Iter it, Func func)
+    inline CUDA_HOSTDEV transform_iterator(Iter it, Func func)
         : m_it(it)
         , m_func(func) {}
 
@@ -48,25 +43,25 @@ public:
     // using iterator_category = std::input_iterator_tag;
     using iterator_category = std::random_access_iterator_tag;
 
-    using type = my_type;
+    using my_type = transform_iterator<Func, Iter>;
 
-    bool operator==(const transform_iterator& rhs) const {
+    inline CUDA_HOSTDEV bool operator==(const my_type& rhs) const {
         return m_it == rhs.m_it;
     }
-    bool operator!=(const transform_iterator& rhs) const {
+    inline CUDA_HOSTDEV bool operator!=(const my_type& rhs) const {
         return m_it != rhs.m_it;
     }
 
-    inline CUDA_HOSTDEV bool operator<(const transform_iterator& rhs) const {
+    inline CUDA_HOSTDEV bool operator<(const my_type& rhs) const {
         return m_it < rhs.m_it;
     }
-    inline CUDA_HOSTDEV bool operator<=(const transform_iterator& rhs) const {
+    inline CUDA_HOSTDEV bool operator<=(const my_type& rhs) const {
         return m_it <= rhs.m_it;
     }
-    inline CUDA_HOSTDEV bool operator>(const transform_iterator& rhs) const {
+    inline CUDA_HOSTDEV bool operator>(const my_type& rhs) const {
         return m_it > rhs.m_it;
     }
-    inline CUDA_HOSTDEV bool operator>=(const transform_iterator& rhs) const {
+    inline CUDA_HOSTDEV bool operator>=(const my_type& rhs) const {
         return m_it >= rhs.m_it;
     }
 
@@ -94,20 +89,22 @@ public:
         return *this;
     }
 
-    auto operator[](difference_type i) const { return m_func(m_it[i]); }
+    inline CUDA_HOSTDEV auto operator[](difference_type i) const {
+        return m_func(m_it[i]);
+    }
     // auto& operator[](difference_type i) { return m_func(m_it[i]); }
 
-    auto operator*() const { return m_func(*m_it); }
+    inline CUDA_HOSTDEV auto operator*() const { return m_func(*m_it); }
 
-    my_type& operator++() {
+    inline CUDA_HOSTDEV my_type& operator++() {
         ++m_it;
         return *this;
     }
-    my_type& operator--() {
+    inline CUDA_HOSTDEV my_type& operator--() {
         --m_it;
         return *this;
     }
-    my_type& operator++(int) {
+    inline CUDA_HOSTDEV my_type& operator++(int) {
         auto prev = *this;
         ++m_it;
         return prev;

@@ -3,7 +3,7 @@
 #tests
 g++ -pthread -std=c++14 -Iinclude/ -Itest/ test/test.cpp -o test_cpu.bin
 #nvcc -expt-relaxed-constexpr -std=c++14 -Iinclude/ -Itest/ -x cu test/test.cpp -o test_gpu.bin
-#nvc++ -std=c++14 -Iinclude/ -Itest/ -x cu test/test.cpp -o test_gpu.bin
+nvc++ -std=c++14 -Iinclude/ -Itest/ -x cu test/test.cpp -o test_gpu.bin
 
 
 
