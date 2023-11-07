@@ -8,11 +8,14 @@
 #include <thrust/device_vector.h>
 #include <thrust/device_malloc_allocator.h>
 #include <thrust/host_vector.h>
+#include <thrust/sort.h>
 template<class T>
 using vector_t = thrust::device_vector<T>;
 
 template<class T>
 using NVec_t = topaz::NumericArray<T, thrust::device_malloc_allocator<T>>;
+
+namespace alglib = thrust;
 
 #else
 #include <vector>
@@ -21,6 +24,10 @@ using vector_t = std::vector<T>;
 
 template<class T>
 using NVec_t = topaz::NumericArray<T, std::allocator<T>>;
+
+namespace alglib = std;
+
+
 
 #endif
 
@@ -35,6 +42,27 @@ TEST_CASE("Tuple"){
 
     auto s_tpl = to_std_tuple(tpl);
     CHECK(std::get<0>(s_tpl) == int(1));
+
+}
+
+TEST_CASE("constant_iterator"){
+
+    using namespace topaz;
+
+    auto rng1 = make_constant_range(int(10), 4);
+
+    #ifdef __NVIDIA_COMPILER__
+    //It appears the thrust::constant_iterator can not be used for sorting
+    //thrust::sort(thrust::host, rng1.begin(), rng1.end());
+    #else
+
+    std::sort(rng1.begin(), rng1.end());
+
+    #endif
+    CHECK(std::vector<int>(rng1.begin(), rng1.end()) == std::vector<int>{10, 10, 10, 10});
+
+    CHECK(std::distance(rng1.begin(), rng1.begin() + 2) == 2);
+
 
 }
 
