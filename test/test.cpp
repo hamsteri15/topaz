@@ -114,6 +114,7 @@ TEST_CASE("Range"){
 
     }
 
+
     SECTION("make_constant_range"){
 
 
@@ -130,21 +131,7 @@ TEST_CASE("Range"){
         }
 
         SECTION("binary"){
-            /*
-            const vector_t<int> v1 = std::vector<int>{1,2,3};
-            vector_t<int> v2 = std::vector<int>{4,5,6};
 
-            auto z1 = zip(v1, v2);
-
-            auto tuple1 = z1[0];
-            CHECK(std::get<0>(tuple1) == 1);
-            CHECK(std::get<1>(tuple1) == 4);
-
-            auto z2 = zip(v2, v1);
-            auto tuple2 = z2[1];
-            CHECK(std::get<0>(tuple2) == 5);
-            CHECK(std::get<1>(tuple2) == 2);
-            */
         }
 
 
@@ -170,6 +157,7 @@ TEST_CASE("Range"){
         }
 
 
+
         SECTION("binary"){
 
             SECTION("test 1"){
@@ -179,6 +167,7 @@ TEST_CASE("Range"){
             }
 
 
+
             SECTION("test 2"){
                 const vector_t<int> v1 = std::vector<int>{1,2,3};
                 const vector_t<int> v2 = std::vector<int>{4,5,6};
@@ -186,7 +175,21 @@ TEST_CASE("Range"){
                 CHECK(std::vector<int>(s1.begin(), s1.end()) == std::vector<int>{5,7,9});
             }
 
+
+
             SECTION("test 3"){
+                vector_t<int> v1 = std::vector<int>{1,2,3};
+                vector_t<int> v2 = std::vector<int>{4,5,6};
+                auto s1 = transform(v1, v2, Plus{}); //{5,7,9}
+                auto s2 = transform(s1, v2, Plus{}); //{9, 12, 15}
+                CHECK(std::vector<int>(s2.begin(), s2.end()) == std::vector<int>{9,12,15});
+            }
+
+
+
+
+
+            SECTION("test 4"){
                 const vector_t<int> v1 = std::vector<int>{1,2,3};
                 const vector_t<int> v2 = std::vector<int>{4,5,6};
                 auto s1 = transform(v1, v2, Plus{}); //{5,7,9}
@@ -195,14 +198,21 @@ TEST_CASE("Range"){
             }
 
 
+
+
+
         }
+
 
 
     }
 
 
 
+
 }
+
+
 
 TEST_CASE("NumericArray"){
 
@@ -264,11 +274,15 @@ TEST_CASE("NumericArray"){
 
             auto s = transform(v1, v2, Plus{});
             auto ss = transform(s, v2, Plus{});
-            CHECK(s[0] == 4);
-            CHECK(ss[0] == 7);
+            NVec_t<int> r1(s);
+            NVec_t<int> r2(ss);
+            CHECK(r1[0] == 4);
+            CHECK(r2[0] == 7);
         }
 
+
     }
+
 
     SECTION("determine_size"){
 
@@ -320,6 +334,7 @@ TEST_CASE("NumericArray"){
 
     SECTION("Arithmetic"){
 
+
         SECTION("plus, minus, divides, multiplies"){
 
             const NVec_t<int> v1{1,2,3};
@@ -337,10 +352,13 @@ TEST_CASE("NumericArray"){
             CHECK(std::vector<int>{v3.begin(), v3.end()} == correct);
 
 
+
             auto t1 = v1 + v2;
             auto t2 = t1 + v1;
             CHECK(std::vector<int>{t2.begin(), t2.end()} == std::vector<int>{6, 9, 12});
+
         }
+
         SECTION("min/max"){
             const NVec_t<int> v1{1,8,3};
             const NVec_t<int> v2{4,5,6};
@@ -468,9 +486,12 @@ TEST_CASE("NumericArray"){
 
         }
 
+
     }
 
+
 }
+
 
 
 #ifdef __NVIDIA_COMPILER__
@@ -542,7 +563,6 @@ TEST_CASE("Cuda only"){
 
 
 
-
 struct Vec3{
 
     Vec3() = default;
@@ -602,3 +622,4 @@ TEST_CASE("Custom type Numeric Array"){
 
 
 }
+
