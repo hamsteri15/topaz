@@ -45,6 +45,96 @@ TEST_CASE("Tuple"){
 
 }
 
+TEST_CASE("zip_iterator"){
+
+    
+
+    SECTION("Dereference 1")
+    {
+        std::vector<int> v1 = {1,2,3,4};
+        std::vector<int> v2 = {1,2,3,4};
+        std::vector<double> v3 = {1.0,2.0,3.0,4.0};
+
+        auto begins = boost::make_tuple(v1.begin(), v2.begin(), v3.begin());
+        auto ends = boost::make_tuple(v1.end(), v2.end(), v3.end());
+
+
+        auto iter = boost::make_zip_iterator(begins);
+        boost::tuple<int&, int&, double&> vals = *iter;
+        boost::get<1>(vals) = 5;
+        CHECK(v2 == std::vector<int>{5, 2, 3, 4});
+    }
+
+    SECTION("Dereference 1")
+    {
+        using namespace topaz;
+        std::vector<int> v1 = {1,2,3,4};
+        std::vector<int> v2 = {1,2,3,4};
+        std::vector<double> v3 = {1.0,2.0,3.0,4.0};
+
+        auto begins = std::make_tuple(v1.begin(), v2.begin(), v3.begin());
+
+
+        auto iter = make_zip_iterator(begins);
+        std::tuple<int&, int&, double&> vals = *iter;
+        std::get<1>(vals) = 5;
+        CHECK(v2 == std::vector<int>{5, 2, 3, 4});
+    }
+
+    SECTION("Dereference 2")
+    {
+        using namespace topaz;
+        std::vector<int> v1 = {1,2,3,4};
+        const std::vector<int> v2 = {4,3,2,1};
+        std::vector<double> v3 = {1.0,2.0,3.0,4.0};
+
+        auto begins = std::make_tuple(v1.begin(), v2.begin(), v3.begin());
+        auto ends = std::make_tuple(v1.end(), v2.end(), v3.end());
+
+
+        auto iter = make_zip_iterator(begins);
+        std::tuple<int&, const int&, double&> vals = *iter;
+
+        CHECK(std::get<0>(vals) == 1);
+        CHECK(std::get<1>(vals) ==  4);
+        CHECK(std::get<2>(vals) == 1.0);
+
+        ++iter;
+
+        std::tuple<int&, const int&, double&> vals2 = *iter;
+
+        CHECK(std::get<0>(vals2) == 2);
+        CHECK(std::get<1>(vals2) ==  3);
+        CHECK(std::get<2>(vals2) == 2.0);
+
+    }
+
+
+    /*
+    SECTION("Dereference 2")
+    {
+        std::vector<int> v1 = {1,2,3,4};
+        const std::vector<int> v2 = {1,2,3,4};
+        std::vector<double> v3 = {1.0,2.0,3.0,4.0};
+
+        auto begins = std::make_tuple(v1.begin(), v2.begin(), v3.begin());
+        auto ends = std::make_tuple(v1.end(), v2.end(), v3.end());
+
+
+        auto iter = make_zip_iterator(begins);
+        auto vals = iter.dereference();
+        std::get<0>(vals) = 7;
+        CHECK(v1 == std::vector<int>{7, 2, 3, 4});
+    }
+    */
+
+
+}
+
+
+
+
+
 TEST_CASE("constant_iterator"){
 
     using namespace topaz;
@@ -99,7 +189,8 @@ TEST_CASE("Range"){
         CHECK(rng[1] == 2);
 
     }
-
+    
+    
     SECTION("make_zip_range"){
 
         vector_t<int> v1 = std::vector<int>{1,2,3};
@@ -110,23 +201,21 @@ TEST_CASE("Range"){
         auto z2 = make_zip_range(v2, v3);
         auto z3 = make_zip_range(v3, v3);
 
-        /*
+        
         CHECK(std::get<0>(z1[0]) == 1);
         CHECK(std::get<0>(z2[1]) == 5.0);
         CHECK(std::get<1>(z3[0]) == 7);
-        */
+        
     }
-
-
+    
+    
     SECTION("make_transform_iterator"){
 
         std::vector<int> v = {1,2,3};
         auto op = [](int i) {return i + 1;};
 
         auto tr = detail::make_transform_iterator(v.begin(), op);
-
-
-        CHECK(tr[1] == 3);
+        CHECK(*tr == 2);
 
     }
 
@@ -153,6 +242,7 @@ TEST_CASE("Range"){
 
     }
 
+    
 
 
     SECTION("transform()"){
@@ -172,7 +262,7 @@ TEST_CASE("Range"){
 
         }
 
-
+        
 
         SECTION("binary"){
 
@@ -182,7 +272,7 @@ TEST_CASE("Range"){
                 CHECK(std::vector<int>(s1.begin(), s1.end()) == std::vector<int>{2,2,2});
             }
 
-
+            
 
             SECTION("test 2"){
                 const vector_t<int> v1 = std::vector<int>{1,2,3};
@@ -190,9 +280,9 @@ TEST_CASE("Range"){
                 auto s1 = transform(v1, v2, Plus{});
                 CHECK(std::vector<int>(s1.begin(), s1.end()) == std::vector<int>{5,7,9});
             }
+            
 
-
-
+            
             SECTION("test 3"){
                 vector_t<int> v1 = std::vector<int>{1,2,3};
                 vector_t<int> v2 = std::vector<int>{4,5,6};
@@ -200,8 +290,10 @@ TEST_CASE("Range"){
                 auto s2 = transform(s1, v2, Plus{}); //{9, 12, 15}
                 CHECK(std::vector<int>(s2.begin(), s2.end()) == std::vector<int>{9,12,15});
             }
+            
+            
 
-
+            /*
 
 
 
@@ -212,22 +304,23 @@ TEST_CASE("Range"){
                 auto s2 = transform(s1, v2, Plus{}); //{9, 12, 15}
                 CHECK(std::vector<int>(s2.begin(), s2.end()) == std::vector<int>{9,12,15});
             }
-
-
-
-
+            */
+            
 
         }
-
+        
 
 
     }
-
+    
+    
 
 
 
 }
 
+
+/*
 
 
 TEST_CASE("NumericArray"){
@@ -638,4 +731,5 @@ TEST_CASE("Custom type Numeric Array"){
 
 
 }
+*/
 

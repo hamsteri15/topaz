@@ -89,9 +89,12 @@ public:
         return *this;
     }
 
+    /*
     inline CUDA_HOSTDEV auto operator[](difference_type i) const {
         return m_func(m_it[i]);
     }
+    */
+    
     // auto& operator[](difference_type i) { return m_func(m_it[i]); }
 
     inline CUDA_HOSTDEV auto operator*() const { return m_func(*m_it); }

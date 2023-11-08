@@ -2,6 +2,8 @@
 
 #include "range.hpp"
 #include "tuple.hpp"
+#include "zip_iterator.hpp"
+
 #ifdef __NVIDIA_COMPILER__
 #include <thrust/iterator/zip_iterator.h>
 #else
@@ -22,10 +24,21 @@ namespace detail{
 
     #else
 
+        
+        /*
         template<class T>
         using zip_iterator = boost::zip_iterator<T>;
 
         using boost::make_zip_iterator;
+        */
+        
+        template<class T>
+        using zip_iterator = topaz::zip_iterator<T>;
+
+
+        using topaz::make_zip_iterator;
+
+        
 
     #endif
 }

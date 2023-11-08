@@ -32,7 +32,7 @@ namespace topaz {
         }
 
     #else
-
+        /*
         template<class... Types>
         using Tuple = boost::tuple<Types...>;
 
@@ -45,6 +45,22 @@ namespace topaz {
         inline constexpr auto adl_make_tuple( Types&&... args ) {
             return boost::make_tuple(std::forward<Types>(args)...);
         }
+        */
+        
+       
+        template<class... Types>
+        using Tuple = std::tuple<Types...>;
+
+        template<class T>
+        using tuple_size = std::tuple_size<T>;
+        //using boost::fusion::tuple_size;
+        using std::get;
+
+        template< class... Types >
+        inline constexpr auto adl_make_tuple( Types&&... args ) {
+            return std::make_tuple(std::forward<Types>(args)...);
+        }
+        
 
     #endif
 
