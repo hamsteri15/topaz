@@ -45,6 +45,12 @@ public:
 
     using my_type = transform_iterator<Func, Iter>;
 
+
+    inline CUDA_HOSTDEV reference dereference() const {
+        return m_func(*m_it);
+    }
+
+
     inline CUDA_HOSTDEV bool operator==(const my_type& rhs) const {
         return m_it == rhs.m_it;
     }
@@ -89,15 +95,15 @@ public:
         return *this;
     }
 
-    /*
+
     inline CUDA_HOSTDEV auto operator[](difference_type i) const {
         return m_func(m_it[i]);
     }
-    */
-    
+
+
     // auto& operator[](difference_type i) { return m_func(m_it[i]); }
 
-    inline CUDA_HOSTDEV auto operator*() const { return m_func(*m_it); }
+    inline CUDA_HOSTDEV auto operator*() const { return dereference(); }
 
     inline CUDA_HOSTDEV my_type& operator++() {
         ++m_it;
