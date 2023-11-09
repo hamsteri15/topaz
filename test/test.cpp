@@ -55,6 +55,7 @@ TEST_CASE("zip_iterator"){
         const std::vector<double> v3 = {1.0,2.0,3.0,4.0};
 
         auto begins = std::make_tuple(v1.begin(), v2.begin(), v3.begin());
+        auto ends = std::make_tuple(v1.end(), v2.end(), v3.end());
 
         auto iter = make_zip_iterator(begins);
         auto copy = iter;
@@ -62,6 +63,10 @@ TEST_CASE("zip_iterator"){
         CHECK((iter + 1) != iter);
         CHECK((iter + 1) > iter);
         CHECK((iter + 1) >= (iter + 1));
+        CHECK(iter < (iter+1));
+        CHECK((iter + 1) <= (iter + 1));
+
+
 
 
         ++iter;
@@ -70,32 +75,33 @@ TEST_CASE("zip_iterator"){
         --iter;
         CHECK(iter == copy);
 
-
-
-        //CHECK(begins < begins + 1);
-        //CHECK(begins + 1 > begins);
+        iter += 1;;
+        CHECK(*iter == std::make_tuple(2, 2, 2.0));
 
     }
 
-
+    /*
+    //TODO: make sure these work
     SECTION("Dereference 1")
     {
+        using namespace topaz;
         std::vector<int> v1 = {1,2,3,4};
         std::vector<int> v2 = {1,2,3,4};
-        std::vector<double> v3 = {1.0,2.0,3.0,4.0};
 
-        auto begins = boost::make_tuple(v1.begin(), v2.begin(), v3.begin());
-        auto ends = boost::make_tuple(v1.end(), v2.end(), v3.end());
+        auto begins = std::make_tuple(v1.begin(), v2.begin());
 
 
-        auto iter = boost::make_zip_iterator(begins);
-        boost::tuple<int&, int&, double&> vals = *iter;
-        boost::get<1>(vals) = 5;
+        auto iter = make_zip_iterator(begins);
+        std::tuple<int&, int&> vals = *iter;
+        //auto vals = iter.dereference();
+        std::get<1>(vals) = 5;
         CHECK(v2 == std::vector<int>{5, 2, 3, 4});
     }
 
 
-    SECTION("Dereference 1")
+
+
+    SECTION("Dereference 2")
     {
         using namespace topaz;
         std::vector<int> v1 = {1,2,3,4};
@@ -113,7 +119,9 @@ TEST_CASE("zip_iterator"){
     }
 
 
-    SECTION("Dereference 2")
+
+
+    SECTION("Dereference 3")
     {
         using namespace topaz;
         std::vector<int> v1 = {1,2,3,4};
@@ -141,7 +149,7 @@ TEST_CASE("zip_iterator"){
 
     }
 
-
+    */
 
 
 }

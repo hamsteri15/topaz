@@ -10,9 +10,8 @@ operations run on the gpu.
 Although, the library is intended to be as dependency-free as possible, the following libraries are still required:
 
 - C++14
-- [Boost v1.67+](https://www.boost.org/) Extension to standard library. Required when compiled with gcc.
 - [thrust](https://thrust.github.io/) Cuda extensions to the standard library. Required when compiled with nvcc.
 
 
 ## Credits
-topaz is adapted from the [newton](https://github.com/jaredhoberock/newton) by Jared Hoberock. 
+topaz is adapted from the [newton](https://github.com/jaredhoberock/newton) by Jared Hoberock.

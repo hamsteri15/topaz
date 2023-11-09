@@ -4,9 +4,6 @@
 
 #ifdef __NVIDIA_COMPILER__
 #include <thrust/tuple.h>
-#else
-#include "boost/tuple/tuple.hpp"
-#include <boost/fusion/include/tuple.hpp>
 #endif
 
 
@@ -53,7 +50,6 @@ namespace topaz {
 
         template<class T>
         using tuple_size = std::tuple_size<T>;
-        //using boost::fusion::tuple_size;
         using std::get;
 
         template< class... Types >

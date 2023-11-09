@@ -11,6 +11,8 @@ namespace topaz {
 
 namespace detail {
 
+
+
 #ifdef __NVIDIA_COMPILER__
 
 template <class Func, class Iter>
@@ -20,6 +22,7 @@ template <class Func, class Iter>
 inline CUDA_HOSTDEV auto make_transform_iterator(Iter it, Func f) {
     return thrust::make_transform_iterator(it, f);
 }
+
 
 #else
 
@@ -36,10 +39,12 @@ public:
 
     using difference_type =
         typename std::iterator_traits<Iter>::difference_type;
-    using reference  = typename std::result_of<Func(
+    using reference  = typename std::result_of<const Func(
         typename std::iterator_traits<Iter>::reference)>::type;
     using pointer    = void;
-    using value_type = reference;
+    using value_type = std::remove_reference_t<reference>;
+    //using value_type = reference;
+
     // using iterator_category = std::input_iterator_tag;
     using iterator_category = std::random_access_iterator_tag;
 
@@ -128,6 +133,9 @@ inline CUDA_HOSTDEV transform_iterator<Func, Iter>
 
 #endif
 } // namespace detail
+
+
+
 
 template <typename UnaryFunction, typename Iterator>
 struct TransformRange

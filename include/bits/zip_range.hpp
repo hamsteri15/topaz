@@ -6,8 +6,6 @@
 
 #ifdef __NVIDIA_COMPILER__
 #include <thrust/iterator/zip_iterator.h>
-#else
-#include <boost/iterator/zip_iterator.hpp>
 #endif
 namespace topaz {
 
@@ -24,13 +22,14 @@ namespace detail{
 
     #else
 
-
         /*
+
         template<class T>
         using zip_iterator = boost::zip_iterator<T>;
 
         using boost::make_zip_iterator;
         */
+
 
         template<class T>
         using zip_iterator = topaz::zip_iterator<T>;
