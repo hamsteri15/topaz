@@ -19,7 +19,7 @@
 #include "bits/numeric_array.hpp"
 #include "bits/arithmetic_ops.hpp"
 #include "bits/parallel_force_evaluate.hpp"
-
+#include "bits/mdrange.hpp"
 
 
 #ifdef __NVIDIA_COMPILER__
