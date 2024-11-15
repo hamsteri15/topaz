@@ -749,6 +749,38 @@ TEST_CASE("Custom type Numeric Array"){
         //Vec3 v1 = {1.0, 2.0, 3.0};
         //Vec
     }
+}
+
+
+TEST_CASE("Test MdRange"){
+
+    using namespace topaz;
+
+    using Array = std::vector<std::vector<int>>;
+
+    Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+    Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{}, std::vector<int>{1,2}};
+
+    auto rng = make_range(a1);
+
+    CHECK(rng.size() == 2);
+
+    /*
+    SECTION("make_md_range"){
+        REQUIRE_NOTHROW(make_md_range(a1));
+    }
+
+    SECTION("range_count"){
+
+        CHECK(range_count(a1) == 2);
+        CHECK(range_count(a2) == 3);
+
+        CHECK(range_count(make_md_range(a1)) == 2);
+        CHECK(range_count(make_md_range(a2)) == 3);
+    }
+
+    */
+
 
 
 

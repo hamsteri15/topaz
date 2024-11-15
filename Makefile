@@ -3,8 +3,8 @@ CXX := g++
 CXXFLAGS := -Iinclude -Itest -std=c++14 -Wall -Wextra
 
 # Source files and output binaries
-TEST_SOURCES := test/catch_main.cpp test/test.cpp
-BENCHMARK_SOURCES := test/catch_main.cpp test/benchmark.cpp
+TEST_SOURCES := test/catch_main.cpp test/test_topaz.cpp
+BENCHMARK_SOURCES := test/catch_main.cpp test/benchmark_topaz.cpp
 TEST_OBJECTS := $(TEST_SOURCES:.cpp=.o)
 BENCHMARK_OBJECTS := $(BENCHMARK_SOURCES:.cpp=.o)
 TEST_OUTPUT := run_tests.bin
@@ -26,7 +26,7 @@ $(BENCHMARK_OUTPUT): $(BENCHMARK_OBJECTS)
 
 # Force recompilation of test.o every time by adding a phony dependency
 .PHONY: force_rebuild
-test/test.o: test/test.cpp force_rebuild
+test/test_topaz.o: test/test_topaz.cpp force_rebuild
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Compile catch_main.o and benchmark.o only if they or their dependencies change

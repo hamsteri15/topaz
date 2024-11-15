@@ -62,13 +62,13 @@ CUDA_HOSTDEV auto make_range(Iterator first, Iterator last) {
 template <class Range_t>
 CUDA_HOSTDEV auto make_range(Range_t& rng) {
     using iterator = decltype(std::begin(rng));
-    return Range<iterator>::type > (rng);
+    return Range<iterator>(rng);
 }
 
 template <class Range_t>
 CUDA_HOSTDEV auto make_range(const Range_t& rng) {
     using iterator = decltype(std::begin(rng));
-    return Range<iterator>::type > (rng);
+    return Range<iterator>(rng);
 }
 
 template <class Range_t, typename Size>
