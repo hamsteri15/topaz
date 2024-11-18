@@ -115,6 +115,9 @@ public:
     const IteratorTuple& get_tuple() const { return m_tuple; }
 
 public:
+
+    zip_iterator() = default;
+
     zip_iterator(IteratorTuple tuple)
         : m_tuple(tuple) {}
 

@@ -78,28 +78,54 @@ CUDA_HOSTDEV auto make_md_range(T& t) {
     return MdRange<iterator>(count, ranges);
 }
 
-/*
+
 template <typename Iterator>
 CUDA_HOSTDEV small_array<Iterator> md_begin(const MdRange<Iterator>& rng) {
 
     small_array<Iterator> begins{};
     for (size_t i = 0; i < range_count(rng); ++i)
     {
-        begins[i] = rng.m_ranges[i];
+        begins[i] = adl_begin(rng.m_ranges[i]);
     }
+    return begins;
 
 }
 
 template <typename Iterator>
-CUDA_HOSTDEV small_array<Iterator> md_ends(const MdRange<Iterator>& rng) {
+CUDA_HOSTDEV small_array<Iterator> md_begin(MdRange<Iterator>& rng) {
 
     small_array<Iterator> begins{};
     for (size_t i = 0; i < range_count(rng); ++i)
     {
-        begins[i] = rng.m_ranges[i];
+        begins[i] = adl_begin(rng.m_ranges[i]);
     }
+    return begins;
+}
+
+template <typename Iterator>
+CUDA_HOSTDEV small_array<Iterator> md_end(const MdRange<Iterator>& rng) {
+
+    small_array<Iterator> ends{};
+    for (size_t i = 0; i < range_count(rng); ++i)
+    {
+        ends[i] = adl_end(rng.m_ranges[i]);
+    }
+    return ends;
 
 }
-*/
+
+template <typename Iterator>
+CUDA_HOSTDEV small_array<Iterator> md_end(MdRange<Iterator>& rng) {
+
+    small_array<Iterator> ends{};
+    for (size_t i = 0; i < range_count(rng); ++i)
+    {
+        ends[i] = adl_end(rng.m_ranges[i]);
+    }
+    return ends;
+}
+
+
+
 
 } // namespace topaz

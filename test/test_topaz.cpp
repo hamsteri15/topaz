@@ -809,10 +809,21 @@ TEST_CASE("Test MdRange"){
             //auto op = [](auto& e){e += 1;};
 
             auto tr = make_md_transform_range(a1, Tester{});
-
-
         }
 
+    }
+
+    SECTION("Test MdZipRange"){
+
+        using iter = typename std::vector<int>::iterator;
+        using tuple_t = Tuple<iter, iter>;
+
+
+
+        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+
+
+        auto z = make_md_zip_range(a1, a1);
 
 
     }

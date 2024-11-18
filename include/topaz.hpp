@@ -21,6 +21,7 @@
 #include "bits/parallel_force_evaluate.hpp"
 #include "bits/mdrange.hpp"
 #include "bits/transform_mdrange.hpp"
+#include "bits/zip_mdrange.hpp"
 
 
 #ifdef __NVIDIA_COMPILER__

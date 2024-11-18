@@ -48,6 +48,8 @@ struct ZipRange : public Range<detail::zip_iterator<IteratorTuple>> {
 
     using parent = Range<detail::zip_iterator<IteratorTuple>>;
 
+    ZipRange() = default;
+
     inline CUDA_HOSTDEV ZipRange(IteratorTuple first, IteratorTuple last)
         : parent(first, last) {}
 };
