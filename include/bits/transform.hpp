@@ -21,6 +21,8 @@ struct ApplyBinaryOp {
 
     BinaryOp op;
 
+    inline CUDA_HOSTDEV ApplyBinaryOp() = default;
+
     inline CUDA_HOSTDEV ApplyBinaryOp(BinaryOp f)
         : op(f) {}
 

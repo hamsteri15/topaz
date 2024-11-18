@@ -829,7 +829,7 @@ TEST_CASE("Test MdRange"){
     }
 
 
-    SECTION("md_transform"){
+    SECTION("md_transform1"){
 
         Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
         Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
@@ -851,6 +851,24 @@ TEST_CASE("Test MdRange"){
         //auto rng2 = md_transform(a1, a2, std::plus<int>{});
 
     }
+
+    SECTION("md_transform2"){
+
+        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+        Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+
+
+
+        auto rng2 = md_transform(a1, a2, std::plus<int>{});
+
+        Array a3(a1);
+        a3[0] = std::vector<int>(rng2[0].begin(), rng2[0].end());
+        a3[1] = std::vector<int>(rng2[1].begin(), rng2[1].end());
+        CHECK(a3[0] == std::vector<int>{2, 6, 8});
+        CHECK(a3[1] == std::vector<int>{2, 4});
+
+    }
+
 
 
 
