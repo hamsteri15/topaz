@@ -33,6 +33,8 @@ public:
     Iter m_it;
     Func m_func;
 
+    inline CUDA_HOSTDEV transform_iterator() = default;
+
     inline CUDA_HOSTDEV transform_iterator(Iter it, Func func)
         : m_it(it)
         , m_func(func) {}
@@ -142,6 +144,8 @@ struct TransformRange
     : public Range<detail::transform_iterator<UnaryFunction, Iterator>> {
 
     using parent = Range<detail::transform_iterator<UnaryFunction, Iterator>>;
+
+    inline CUDA_HOSTDEV TransformRange() = default;
 
     inline CUDA_HOSTDEV
     TransformRange(Iterator first, Iterator last, UnaryFunction f)

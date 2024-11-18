@@ -6,42 +6,65 @@
 
 namespace topaz {
 
+template <typename Function, class MdRange_t>
+inline CUDA_HOSTDEV auto make_md_transform_ranges(const MdRange_t& rng,
+                                                  Function         f) {
+
+    using org_iterator = typename MdRange_t::iterator;
+    using new_iterator = detail::transform_iterator<Function, org_iterator>;
+    using trange       = Range<new_iterator>;
+    small_array<trange> ret{};
+    for (size_t i = 0; i < range_count(rng); ++i) {
+        ret[i] = make_transform_range(rng.m_ranges[i], f);
+    }
+    return ret;
+}
+
+template <typename Function, class MdRange_t>
+inline CUDA_HOSTDEV auto make_md_transform_ranges(MdRange_t& rng, Function f) {
+
+    using org_iterator = typename MdRange_t::iterator;
+    using new_iterator = detail::transform_iterator<Function, org_iterator>;
+    using trange       = Range<new_iterator>;
+    small_array<trange> ret{};
+
+    for (size_t i = 0; i < range_count(rng); ++i) {
+        ret[i] = make_transform_range(rng.m_ranges[i], f);
+    }
+    return ret;
+}
+
 template <typename UnaryFunction, typename Iterator>
 struct MdTransformRange
     : public MdRange<detail::transform_iterator<UnaryFunction, Iterator>> {
 
-
-
     using parent = MdRange<detail::transform_iterator<UnaryFunction, Iterator>>;
 
-    /*
-
-    inline CUDA_HOSTDEV
-    MdTransformRange(Iterator first, Iterator last, UnaryFunction f)
-        : parent(detail::make_transform_iterator(first, f),
-                 detail::make_transform_iterator(last, f)) {}
+    MdTransformRange() = default;
 
     template <class MdRange_t>
-    inline CUDA_HOSTDEV TransformRange(MdRange_t& rng, UnaryFunction f)
-        : TransformRange(adl_begin(rng), adl_end(rng), f) {}
+    inline CUDA_HOSTDEV MdTransformRange(MdRange_t& rng, UnaryFunction f)
+        : parent(range_count(rng), make_md_transform_ranges(rng, f)) {}
 
-    template <class Range_t>
-    inline CUDA_HOSTDEV TransformRange(const Range_t& rng, UnaryFunction f)
-        : TransformRange(adl_begin(rng), adl_end(rng), f) {}
-    */
+    template <class MdRange_t>
+    inline CUDA_HOSTDEV MdTransformRange(const MdRange_t& rng, UnaryFunction f)
+        : parent(range_count(rng), make_md_transform_ranges(rng, f)) {}
 };
 
 template <typename Function, class MdRange_t>
 inline CUDA_HOSTDEV auto make_md_transform_range(MdRange_t& rng, Function f) {
-    using iterator = typename MdRnage_t::iterator;
-    return MdTransformRange<Function, iterator>(rng, f);
+
+    auto md = make_md_range(rng);
+    using iterator = typename decltype(md)::iterator;
+    return MdTransformRange<Function, iterator>{md, f};
 }
 
-template <typename Function, class Range_t>
+template <typename Function, class MdRange_t>
 inline CUDA_HOSTDEV auto make_md_transform_range(const MdRange_t& rng,
                                                  Function         f) {
-    using iterator = typename MdRnage_t::iterator;
-    return MdTransformRange<Function, iterator>(rng, f);
+    auto md = make_md_range(rng);
+    using iterator = typename decltype(md)::iterator;
+    return MdTransformRange<Function, iterator>{md, f};
 }
 
 } // namespace topaz

@@ -752,25 +752,30 @@ TEST_CASE("Custom type Numeric Array"){
 }
 
 
+struct Tester{
+
+    void operator()(int& e ) const {e += 1;}
+};
+
 TEST_CASE("Test MdRange"){
 
     using namespace topaz;
 
     using Array = std::vector<std::vector<int>>;
 
-    Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
-    Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{}, std::vector<int>{1,2}};
 
-    auto rng = make_range(a1);
 
-    CHECK(rng.size() == 2);
 
-    /*
     SECTION("make_md_range"){
+        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+
         REQUIRE_NOTHROW(make_md_range(a1));
     }
 
     SECTION("range_count"){
+        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+
+    Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{}, std::vector<int>{1,2}};
 
         CHECK(range_count(a1) == 2);
         CHECK(range_count(a2) == 3);
@@ -779,7 +784,38 @@ TEST_CASE("Test MdRange"){
         CHECK(range_count(make_md_range(a2)) == 3);
     }
 
-    */
+
+
+    SECTION("Test MdTransformRange"){
+
+
+        SECTION("Test 1 "){
+            Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+            auto arr = make_md_transform_ranges(make_md_range(a1), Tester{});
+            auto& t1 = arr[0];
+            for (size_t i = 0; i < t1.size(); ++i){
+                t1[i];
+            }
+            CHECK(a1[0] == std::vector<int>{2,4,5});
+            CHECK(a1[1] == std::vector<int>{1, 2});
+        }
+
+        SECTION("Test 2 "){
+            Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+
+            //auto md = make_md_range(a1);
+            //MdTransformRange<Tester, typename std::vector<int>::iterator> rng(md, Tester{});
+
+            //auto op = [](auto& e){e += 1;};
+
+            auto tr = make_md_transform_range(a1, Tester{});
+
+
+        }
+
+
+
+    }
 
 
 

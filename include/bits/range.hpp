@@ -16,6 +16,8 @@ public:
 
     static constexpr bool is_range = true;
 
+    inline CUDA_HOSTDEV Range() = default;
+
     inline CUDA_HOSTDEV Range(iterator first, iterator last)
         : m_begin(first)
         , m_end(last) {}
