@@ -41,7 +41,6 @@ struct MdTransformRange
     using parent = MdRange<detail::transform_iterator<UnaryFunction, Iterator>>;
     using iterator = typename parent::iterator;
 
-    MdTransformRange() = default;
 
     template <class MdRange_t>
     inline CUDA_HOSTDEV MdTransformRange(MdRange_t& rng, UnaryFunction f)

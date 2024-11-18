@@ -6,14 +6,6 @@
 namespace topaz {
 
 
-template<class MdArray>
-struct DeduceInnerIterator{
-
-};
-
-
-
-
 template <class Iterator>
 struct MdRange {
 
@@ -43,34 +35,6 @@ struct MdRange {
     small_array<Range<iterator>> m_ranges;
 };
 
-
-template<class T>
-struct DeduceInnerIterator<std::vector<std::vector<T>>>{
-
-    using iterator = typename std::vector<T>::iterator;
-
-};
-
-template<class T>
-struct DeduceInnerIterator<const std::vector<std::vector<T>>>{
-
-    using iterator = typename std::vector<T>::const_iterator;
-
-};
-
-template<class Iterator>
-struct DeduceInnerIterator<MdRange<Iterator>>{
-
-    using iterator = Iterator;
-
-};
-
-template<class Iterator>
-struct DeduceInnerIterator<const MdRange<Iterator>>{
-
-    using iterator = const Iterator;
-
-};
 
 
 
