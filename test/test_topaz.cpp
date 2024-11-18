@@ -858,7 +858,6 @@ TEST_CASE("Test MdRange"){
         Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
 
 
-
         auto rng2 = md_transform(a1, a2, std::plus<int>{});
 
         Array a3(a1);
