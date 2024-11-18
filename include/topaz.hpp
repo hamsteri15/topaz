@@ -22,6 +22,7 @@
 #include "bits/mdrange.hpp"
 #include "bits/transform_mdrange.hpp"
 #include "bits/zip_mdrange.hpp"
+#include "bits/md_transform.hpp"
 
 
 #ifdef __NVIDIA_COMPILER__

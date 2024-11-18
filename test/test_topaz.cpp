@@ -757,6 +757,12 @@ struct Tester{
     void operator()(int& e ) const {e += 1;}
 };
 
+struct BinaryTester{
+
+    template<class Tuple>
+    int operator()(const Tuple& tpl) const {return std::get<0>(tpl) + std::get<1>(tpl);}
+};
+
 TEST_CASE("Test MdRange"){
 
     using namespace topaz;
@@ -771,6 +777,8 @@ TEST_CASE("Test MdRange"){
 
         REQUIRE_NOTHROW(make_md_range(a1));
     }
+
+
 
     SECTION("range_count"){
         Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
@@ -803,30 +811,48 @@ TEST_CASE("Test MdRange"){
         SECTION("Test 2 "){
             Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
 
-            //auto md = make_md_range(a1);
-            //MdTransformRange<Tester, typename std::vector<int>::iterator> rng(md, Tester{});
-
-            //auto op = [](auto& e){e += 1;};
-
             auto tr = make_md_transform_range(a1, Tester{});
         }
 
     }
+
 
     SECTION("Test MdZipRange"){
 
         using iter = typename std::vector<int>::iterator;
         using tuple_t = Tuple<iter, iter>;
 
-
-
         Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
-
 
         auto z = make_md_zip_range(a1, a1);
 
+    }
+
+
+    SECTION("md_transform"){
+
+        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+        Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+
+        auto rng = md_transform(a1, Tester{});
+
+        auto zip = make_md_zip_range(a1, a2);
+
+
+        auto rng2 = md_transform(zip, BinaryTester{});
+
+
+        Array a3(a1);
+        a3[0] = std::vector<int>(rng2[0].begin(), rng2[0].end());
+        a3[1] = std::vector<int>(rng2[1].begin(), rng2[1].end());
+        CHECK(a3[0] == std::vector<int>{2, 6, 8});
+        CHECK(a3[1] == std::vector<int>{2, 4});
+
+        //auto rng2 = md_transform(a1, a2, std::plus<int>{});
 
     }
+
+
 
 
 

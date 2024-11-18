@@ -39,6 +39,7 @@ struct MdTransformRange
     : public MdRange<detail::transform_iterator<UnaryFunction, Iterator>> {
 
     using parent = MdRange<detail::transform_iterator<UnaryFunction, Iterator>>;
+    using iterator = typename parent::iterator;
 
     MdTransformRange() = default;
 
