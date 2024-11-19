@@ -57,44 +57,50 @@ CUDA_HOSTDEV auto make_md_range(T& t) {
     return MdRange<iterator>(count, ranges);
 }
 
-template <typename Iterator>
-CUDA_HOSTDEV small_array<Iterator> md_begin(const MdRange<Iterator>& rng) {
+template <typename MdRange_t>
+CUDA_HOSTDEV auto md_begin(const MdRange_t& t) {
 
-    small_array<Iterator> begins{};
-    for (size_t i = 0; i < range_count(rng); ++i) {
-        begins[i] = adl_begin(rng.m_ranges[i]);
+    using iterator = decltype((*t.begin()).begin());
+    small_array<iterator> ret{};
+    for (size_t i = 0; i < range_count(t); ++i) {
+        ret[i] = adl_begin(t[i]);
     }
-    return begins;
+    return ret;
 }
 
-template <typename Iterator>
-CUDA_HOSTDEV small_array<Iterator> md_begin(MdRange<Iterator>& rng) {
+template <typename MdRange_t>
+CUDA_HOSTDEV auto md_begin(MdRange_t& t) {
 
-    small_array<Iterator> begins{};
-    for (size_t i = 0; i < range_count(rng); ++i) {
-        begins[i] = adl_begin(rng.m_ranges[i]);
+    using iterator = decltype((*t.begin()).begin());
+    small_array<iterator> ret{};
+    for (size_t i = 0; i < range_count(t); ++i) {
+        ret[i] = adl_begin(t[i]);
     }
-    return begins;
+    return ret;
 }
 
-template <typename Iterator>
-CUDA_HOSTDEV small_array<Iterator> md_end(const MdRange<Iterator>& rng) {
+template <typename MdRange_t>
+CUDA_HOSTDEV auto md_end(const MdRange_t& t) {
 
-    small_array<Iterator> ends{};
-    for (size_t i = 0; i < range_count(rng); ++i) {
-        ends[i] = adl_end(rng.m_ranges[i]);
+    using iterator = decltype((*t.begin()).begin());
+    small_array<iterator> ret{};
+    for (size_t i = 0; i < range_count(t); ++i) {
+        ret[i] = adl_end(t[i]);
     }
-    return ends;
+    return ret;
 }
 
-template <typename Iterator>
-CUDA_HOSTDEV small_array<Iterator> md_end(MdRange<Iterator>& rng) {
+template <typename MdRange_t>
+CUDA_HOSTDEV auto md_end(MdRange_t& t) {
 
-    small_array<Iterator> ends{};
-    for (size_t i = 0; i < range_count(rng); ++i) {
-        ends[i] = adl_end(rng.m_ranges[i]);
+    using iterator = decltype((*t.begin()).begin());
+    small_array<iterator> ret{};
+    for (size_t i = 0; i < range_count(t); ++i) {
+        ret[i] = adl_end(t[i]);
     }
-    return ends;
+    return ret;
 }
+
+
 
 } // namespace topaz
