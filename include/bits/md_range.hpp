@@ -11,6 +11,7 @@ struct MdRange {
     using iterator   = Iterator;
     using value_type = typename std::iterator_traits<Iterator>::value_type;
     using reference  = typename std::iterator_traits<Iterator>::reference;
+    using difference_type = typename std::iterator_traits<Iterator>::difference_type;
 
     inline CUDA_HOSTDEV MdRange(size_t                       count,
                                 const small_array<Range<iterator>>& ranges)

@@ -14,6 +14,9 @@ private:
     using difference_type = typename parent::difference_type;
 
 public:
+
+    inline ConstantRange() = default;
+
     inline CUDA_HOSTDEV ConstantRange(value_type c, difference_type n)
         : parent(constant_iterator<Value>(c, difference_type(0)),
                  constant_iterator<Value>(c, n)) {}

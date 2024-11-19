@@ -27,6 +27,8 @@ public:
     using pointer           = T*;
     using iterator_category = std::random_access_iterator_tag;
 
+    constant_iterator() = default;
+
     inline CUDA_HOSTDEV constant_iterator(const T&        value,
                                           difference_type index = 0)
         : m_value(value)

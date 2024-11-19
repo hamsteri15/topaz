@@ -799,10 +799,39 @@ TEST_CASE("Test MdRange"){
         CHECK(range_count(make_md_range(a2)) == 3);
     }
 
-    
 
 }
 
+TEST_CASE("Test MdConstantRange"){
+
+    using namespace topaz;
+
+    using Array = std::vector<NVec_t<int>>;
+
+    SECTION("make_md_constant_range"){
+
+        auto sizes = [](){
+            small_array<std::ptrdiff_t> ret;
+            ret[0] = 3;
+            ret[1] = 5;
+            return ret;
+        };
+
+        auto rng = make_md_constant_range(int(4), 2, sizes());
+
+        CHECK(rng[0][0] == 4);
+        CHECK(rng[1][0] == 4);
+        CHECK(rng[1][4] == 4);
+        
+
+        CHECK(range_count(rng) == 2);
+
+    }
+
+        
+
+
+}
 
 
 TEST_CASE("Test MdTransformRange"){

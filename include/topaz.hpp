@@ -23,7 +23,7 @@
 #include "bits/md_transform_range.hpp"
 #include "bits/md_zip_range.hpp"
 #include "bits/md_transform.hpp"
-
+#include "bits/md_constant_range.hpp"
 
 #ifdef __NVIDIA_COMPILER__
 #include "bits/device_host_copy.hpp"
