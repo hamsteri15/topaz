@@ -1,12 +1,12 @@
 # Compiler and flags
 CXX := g++
-CXXFLAGS := -Iinclude -Itest -std=c++2a -Wall -Wextra
+CXXFLAGS := -Iinclude -Itest -std=c++14 -Wall -Wextra
 
 #CXX := nvcc
 #CXXFLAGS := -Iinclude -Itest -std=c++14 -x cu -expt-relaxed-constexpr -extended-lambda
 
 #CXX := nvc++
-#CXXFLAGS := -Iinclude -Itest -std=c++14 -stdpar=gpu
+#CXXFLAGS := -Iinclude -Itest -std=c++20 -stdpar=gpu
 
 # Source files and output binaries
 TEST_SOURCES := test/catch_main.cpp test/test_topaz.cpp

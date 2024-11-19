@@ -835,15 +835,12 @@ TEST_CASE("Test MdTransformRange"){
 
     SECTION("md_transform()")
     {
+           const Array a1 = {NVec_t<int>{1,2,3}, NVec_t<int>{4,5}};
 
         SECTION("unary"){
             
-            Array a1 = {NVec_t<int>{1,2,3}, NVec_t<int>{4,5}};
-            auto op = [](int i) {return i + 1;};
             
-            //auto op = PlusOne{};
-
-            //auto arr = make_l_array(op);
+            auto op = PlusOne{};
 
             auto s1 = md_transform(a1, op);
 
@@ -860,6 +857,38 @@ TEST_CASE("Test MdTransformRange"){
 
         }
         
+        SECTION("binary"){
+
+            SECTION("test 1"){
+                auto s = md_transform(a1, a1, Plus{});
+
+                CHECK(std::vector<int>(s[0].begin(), s[0].end()) == std::vector<int>{2,4,6});
+                CHECK(std::vector<int>(s[1].begin(), s[1].end()) == std::vector<int>{8,10});
+            }
+
+            SECTION("test 2"){
+                Array a2 = {NVec_t<int>{1,2}, NVec_t<int>{}};
+                Array a3 = {NVec_t<int>{4,5}, NVec_t<int>{}};
+                auto s = md_transform(a2, a3, Plus{});
+
+                CHECK(std::vector<int>(s[0].begin(), s[0].end()) == std::vector<int>{5,7});
+                CHECK(std::vector<int>(s[1].begin(), s[1].end()) == std::vector<int>{});
+            }
+
+
+            SECTION("test 3"){
+                const Array a2 = {NVec_t<int>{1,2}, NVec_t<int>{}};
+                const Array a3 = {NVec_t<int>{4,5}, NVec_t<int>{}};
+
+                auto s1 = md_transform(a2, a3, Plus{}); //{5,7}
+                auto s2 = md_transform(s1, a2, Plus{}); //{6,9}
+                CHECK(std::vector<int>(s2[0].begin(), s2[0].end()) == std::vector<int>{6,9});
+                CHECK(std::vector<int>(s2[1].begin(), s2[1].end()) == std::vector<int>{});
+            }
+
+        }
+
+
         SECTION("md_transform1"){
 
             Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};

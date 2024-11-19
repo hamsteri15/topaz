@@ -20,6 +20,8 @@ struct function_pointer_t {
 };
 */
 
+
+
 template <typename UnaryFunction, typename Iterator>
 struct MdTransformRange
     : public MdRange<detail::transform_iterator<UnaryFunction, Iterator>> {
