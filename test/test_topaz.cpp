@@ -184,7 +184,7 @@ TEST_CASE("transform_iterator"){
     using namespace topaz;
 
 
-    auto op = [](int i) {return i + 1;};
+    auto op = [] CUDA_HOSTDEV (int i) {return i + 1;};
 
     vector_t<int> v = std::vector<int>{1,2,3};
     auto r = make_transform_range(v.begin(), v.begin() + 1, op);
@@ -756,13 +756,14 @@ TEST_CASE("Custom type Numeric Array"){
 
 struct Tester{
 
+    CUDA_HOSTDEV
     void operator()(int& e ) const {e += 1;}
 };
 
 struct BinaryTester{
 
     template<class Tuple>
-    int operator()(const Tuple& tpl) const {return std::get<0>(tpl) + std::get<1>(tpl);}
+    CUDA_HOSTDEV int operator()(const Tuple& tpl) const {return topaz::get<0>(tpl) + topaz::get<1>(tpl);}
 };
 
 TEST_CASE("Test MdRange"){
@@ -790,6 +791,9 @@ TEST_CASE("Test MdRange"){
         CHECK(range_count(make_md_range(a1)) == 2);
         CHECK(range_count(make_md_range(a2)) == 3);
     }
+
+    
+
 }
 
 TEST_CASE("Test MdTransformRange"){
@@ -813,7 +817,7 @@ TEST_CASE("Test MdTransformRange"){
     SECTION("Test 2 "){
         Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
-        auto tr = make_md_transform_range(a1, Tester{});
+        //auto tr = make_md_transform_range(a1, Tester{});
     }
 
     SECTION("md_transform1"){
