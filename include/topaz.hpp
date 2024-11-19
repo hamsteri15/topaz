@@ -19,9 +19,9 @@
 #include "bits/numeric_array.hpp"
 #include "bits/arithmetic_ops.hpp"
 #include "bits/parallel_force_evaluate.hpp"
-#include "bits/mdrange.hpp"
-#include "bits/transform_mdrange.hpp"
-#include "bits/zip_mdrange.hpp"
+#include "bits/md_range.hpp"
+#include "bits/md_transform_range.hpp"
+#include "bits/md_zip_range.hpp"
 #include "bits/md_transform.hpp"
 
 

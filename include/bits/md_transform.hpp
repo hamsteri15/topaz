@@ -1,8 +1,8 @@
 #pragma once
 
 #include "traits.hpp"
-#include "transform_mdrange.hpp"
-#include "zip_mdrange.hpp"
+#include "md_transform_range.hpp"
+#include "md_zip_range.hpp"
 #include "transform.hpp"
 
 namespace topaz {
