@@ -799,6 +799,19 @@ TEST_CASE("Test MdRange"){
         CHECK(range_count(make_md_range(a2)) == 3);
     }
 
+    SECTION("md_size()"){
+        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+        Array a2 = {NVec_t<int>{}, NVec_t<int>{}};
+
+        small_array<std::ptrdiff_t> c1{};
+        c1[0] = 3;
+        c1[1] = 2;
+
+        CHECK(md_size(a1) == c1);
+        CHECK(md_size(a2) == small_array<std::ptrdiff_t>{});
+
+    }
+
 
 }
 

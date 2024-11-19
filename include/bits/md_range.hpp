@@ -102,6 +102,18 @@ CUDA_HOSTDEV auto md_end(MdRange_t& t) {
     return ret;
 }
 
+template <typename MdRange_t>
+CUDA_HOSTDEV auto md_size(const MdRange_t& t) {
+
+    using iterator = decltype((*t.begin()).begin());
+    using integer_type = typename std::iterator_traits<iterator>::difference_type;
+    small_array<integer_type> ret{};
+    for (size_t i = 0; i < range_count(t); ++i) {
+        ret[i] = adl_size(t[i]);
+    }
+    return ret;
+}
+
 
 
 } // namespace topaz
