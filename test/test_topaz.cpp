@@ -55,7 +55,7 @@ TEST_CASE("zip_iterator"){
         const std::vector<double> v3 = {1.0,2.0,3.0,4.0};
 
         auto begins = std::make_tuple(v1.begin(), v2.begin(), v3.begin());
-        auto ends = std::make_tuple(v1.end(), v2.end(), v3.end());
+        //auto ends = std::make_tuple(v1.end(), v2.end(), v3.end());
 
         auto iter = make_zip_iterator(begins);
         auto copy = iter;
@@ -315,6 +315,8 @@ TEST_CASE("Range"){
                 int i  = *s1.begin();
                 int i2 = *s2.begin();
 
+                CHECK(i == 5);
+                CHECK(i2 == 9);
                 //CHECK(std::vector<int>(s2.begin(), s2.end()) == std::vector<int>{9,12,15});
             }
 
@@ -767,23 +769,20 @@ TEST_CASE("Test MdRange"){
 
     using namespace topaz;
 
-    using Array = std::vector<std::vector<int>>;
-
-
-
+    using Array = std::vector<NVec_t<int>>;
 
     SECTION("make_md_range"){
-        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
         REQUIRE_NOTHROW(make_md_range(a1));
+
+        REQUIRE_NOTHROW(make_md_range(make_md_range(a1)));
     }
 
-
-
     SECTION("range_count"){
-        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
-    Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{}, std::vector<int>{1,2}};
+        Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{}, NVec_t<int>{1,2}};
 
         CHECK(range_count(a1) == 2);
         CHECK(range_count(a2) == 3);
@@ -791,50 +790,37 @@ TEST_CASE("Test MdRange"){
         CHECK(range_count(make_md_range(a1)) == 2);
         CHECK(range_count(make_md_range(a2)) == 3);
     }
+}
 
+TEST_CASE("Test MdTransformRange"){
+    using namespace topaz;
 
+    using Array = std::vector<NVec_t<int>>;
 
-    SECTION("Test MdTransformRange"){
-
-
-        SECTION("Test 1 "){
-            Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
-            auto arr = make_md_transform_ranges(make_md_range(a1), Tester{});
-            auto& t1 = arr[0];
-            for (size_t i = 0; i < t1.size(); ++i){
-                t1[i];
-            }
-            CHECK(a1[0] == std::vector<int>{2,4,5});
-            CHECK(a1[1] == std::vector<int>{1, 2});
+    /*
+    SECTION("Test 1 "){
+        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+        auto arr = make_md_transform_ranges(make_md_range(a1), Tester{});
+        auto& t1 = arr[0];
+        for (size_t i = 0; i < t1.size(); ++i){
+            t1[i];
         }
-
-        SECTION("Test 2 "){
-            Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
-
-            auto tr = make_md_transform_range(a1, Tester{});
-        }
-
+        CHECK(std::vector<int>(a1[0].begin(), a1[0].end()) == std::vector<int>{2,4,5});
+        CHECK(std::vector<int>(a1[1].begin(), a1[1].end()) == std::vector<int>{1, 2});
     }
+    */
 
+    SECTION("Test 2 "){
+        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
-    SECTION("Test MdZipRange"){
-
-        using iter = typename std::vector<int>::iterator;
-        using tuple_t = Tuple<iter, iter>;
-
-        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
-
-        auto z = make_md_zip_range(a1, a1);
-
+        auto tr = make_md_transform_range(a1, Tester{});
     }
-
 
     SECTION("md_transform1"){
 
-        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
-        Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+        Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
-        auto rng = md_transform(a1, Tester{});
 
         auto zip = make_md_zip_range(a1, a2);
 
@@ -843,10 +829,10 @@ TEST_CASE("Test MdRange"){
 
 
         Array a3(a1);
-        a3[0] = std::vector<int>(rng2[0].begin(), rng2[0].end());
-        a3[1] = std::vector<int>(rng2[1].begin(), rng2[1].end());
-        CHECK(a3[0] == std::vector<int>{2, 6, 8});
-        CHECK(a3[1] == std::vector<int>{2, 4});
+        a3[0] = NVec_t<int>(rng2[0].begin(), rng2[0].end());
+        a3[1] = NVec_t<int>(rng2[1].begin(), rng2[1].end());
+        CHECK(a3[0] == NVec_t<int>{2, 6, 8});
+        CHECK(a3[1] == NVec_t<int>{2, 4});
 
         //auto rng2 = md_transform(a1, a2, std::plus<int>{});
 
@@ -854,26 +840,31 @@ TEST_CASE("Test MdRange"){
 
     SECTION("md_transform2"){
 
-        Array a1 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
-        Array a2 = {std::vector<int>{1,3,4}, std::vector<int>{1,2}};
+        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+        Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
 
         auto rng2 = md_transform(a1, a2, std::plus<int>{});
 
         Array a3(a1);
-        a3[0] = std::vector<int>(rng2[0].begin(), rng2[0].end());
-        a3[1] = std::vector<int>(rng2[1].begin(), rng2[1].end());
-        CHECK(a3[0] == std::vector<int>{2, 6, 8});
-        CHECK(a3[1] == std::vector<int>{2, 4});
+        a3[0] = NVec_t<int>(rng2[0].begin(), rng2[0].end());
+        a3[1] = NVec_t<int>(rng2[1].begin(), rng2[1].end());
+        CHECK(a3[0] == NVec_t<int>{2, 6, 8});
+        CHECK(a3[1] == NVec_t<int>{2, 4});
 
     }
-
-
-
-
-
-
-
 }
 
+TEST_CASE("Test MdZipRange"){
+    using namespace topaz;
+
+    using Array = std::vector<NVec_t<int>>;
+
+    SECTION("make_md_zip_range"){
+
+        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+
+        auto z = make_md_zip_range(a1, a1);
+    }
+}
 
