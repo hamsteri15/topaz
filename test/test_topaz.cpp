@@ -3,6 +3,7 @@
 #include "catch.hpp"
 
 #include "topaz.hpp"
+#include <iostream>
 
 #ifdef __NVIDIA_COMPILER__
 #include <thrust/device_vector.h>
@@ -760,6 +761,12 @@ struct Tester{
     void operator()(int& e ) const {e += 1;}
 };
 
+struct PlusOne{
+
+    CUDA_HOSTDEV
+    int operator()(int e ) const {return e + 1;}
+};
+
 struct BinaryTester{
 
     template<class Tuple>
@@ -796,6 +803,8 @@ TEST_CASE("Test MdRange"){
 
 }
 
+
+
 TEST_CASE("Test MdTransformRange"){
     using namespace topaz;
 
@@ -813,50 +822,85 @@ TEST_CASE("Test MdTransformRange"){
         CHECK(std::vector<int>(a1[1].begin(), a1[1].end()) == std::vector<int>{1, 2});
     }
     */
+    
 
     SECTION("Test 2 "){
         Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
+        auto rng = make_md_transform_range(a1, Tester{});
+
+
         //auto tr = make_md_transform_range(a1, Tester{});
     }
 
-    SECTION("md_transform1"){
+    SECTION("md_transform()")
+    {
 
-        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
-        Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+        SECTION("unary"){
+            
+            Array a1 = {NVec_t<int>{1,2,3}, NVec_t<int>{4,5}};
+            auto op = [](int i) {return i + 1;};
+            
+            //auto op = PlusOne{};
+
+            //auto arr = make_l_array(op);
+
+            auto s1 = md_transform(a1, op);
+
+            CHECK(std::vector<int>(s1[0].begin(), s1[0].end()) == std::vector<int>{2,3,4});
+            CHECK(std::vector<int>(s1[1].begin(), s1[1].end()) == std::vector<int>{5,6});
+
+            
+            auto s2 = md_transform(a1, op);
+            auto s3 = md_transform(s2, op);
+
+            CHECK(std::vector<int>(s3[0].begin(), s3[0].end()) == std::vector<int>{3,4,5});
+            CHECK(std::vector<int>(s3[1].begin(), s3[1].end()) == std::vector<int>{6,7});
+            
+
+        }
+        
+        SECTION("md_transform1"){
+
+            Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+            Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
 
-        auto zip = make_md_zip_range(a1, a2);
+            auto zip = make_md_zip_range(a1, a2);
 
 
-        auto rng2 = md_transform(zip, BinaryTester{});
+            auto rng2 = md_transform(zip, BinaryTester{});
 
 
-        Array a3(a1);
-        a3[0] = NVec_t<int>(rng2[0].begin(), rng2[0].end());
-        a3[1] = NVec_t<int>(rng2[1].begin(), rng2[1].end());
-        CHECK(a3[0] == NVec_t<int>{2, 6, 8});
-        CHECK(a3[1] == NVec_t<int>{2, 4});
+            Array a3(a1);
+            a3[0] = NVec_t<int>(rng2[0].begin(), rng2[0].end());
+            a3[1] = NVec_t<int>(rng2[1].begin(), rng2[1].end());
+            CHECK(a3[0] == NVec_t<int>{2, 6, 8});
+            CHECK(a3[1] == NVec_t<int>{2, 4});
 
-        //auto rng2 = md_transform(a1, a2, std::plus<int>{});
+            //auto rng2 = md_transform(a1, a2, std::plus<int>{});
 
+        }
+        
+        SECTION("md_transform2"){
+
+            Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+            Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+
+
+            auto rng2 = md_transform(a1, a2, std::plus<int>{});
+
+            Array a3(a1);
+            a3[0] = NVec_t<int>(rng2[0].begin(), rng2[0].end());
+            a3[1] = NVec_t<int>(rng2[1].begin(), rng2[1].end());
+            CHECK(a3[0] == NVec_t<int>{2, 6, 8});
+            CHECK(a3[1] == NVec_t<int>{2, 4});
+
+        }
+        
     }
 
-    SECTION("md_transform2"){
-
-        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
-        Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
-
-
-        auto rng2 = md_transform(a1, a2, std::plus<int>{});
-
-        Array a3(a1);
-        a3[0] = NVec_t<int>(rng2[0].begin(), rng2[0].end());
-        a3[1] = NVec_t<int>(rng2[1].begin(), rng2[1].end());
-        CHECK(a3[0] == NVec_t<int>{2, 6, 8});
-        CHECK(a3[1] == NVec_t<int>{2, 4});
-
-    }
+    
 }
 
 TEST_CASE("Test MdZipRange"){
