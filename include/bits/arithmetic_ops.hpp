@@ -130,10 +130,19 @@ struct Cbrt {
 
 
 
-
+/*
 template <class T1,
           class T2,
           typename = std::enable_if_t<SupportsBinaryExpression_v<T1, T2>>>
+inline CUDA_HOSTDEV auto operator+(const T1& lhs, const T2& rhs) {
+
+    return smart_transform(lhs, rhs, Plus{});
+}
+*/
+
+template <class T1,
+          class T2,
+          std::enable_if_t<SupportsBinaryExpression_v<T1, T2>, bool> = true>
 inline CUDA_HOSTDEV auto operator+(const T1& lhs, const T2& rhs) {
 
     return smart_transform(lhs, rhs, Plus{});

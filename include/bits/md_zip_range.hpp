@@ -20,7 +20,7 @@ private:
                                const small_array<IteratorTuple>& lasts,
                                size_t                            count) {
 
-        small_array<Range<iterator>> ret;
+        small_array<Range<iterator>> ret{};
 
         for (size_t i = 0; i < count; ++i) {
             ret[i] = Range<iterator>(firsts[i], lasts[i]);
@@ -45,8 +45,8 @@ inline CUDA_HOSTDEV auto make_md_zip_range(MdRange1_t& rng1, MdRange2_t& rng2) {
 
     auto count = range_count(rng1);
 
-    small_array<tuple_t> firsts;
-    small_array<tuple_t> lasts;
+    small_array<tuple_t> firsts{};
+    small_array<tuple_t> lasts{};
 
     for (size_t i = 0; i < count; ++i) {
         firsts[i] = adl_make_tuple(firsts1[i], firsts2[i]);
@@ -73,8 +73,8 @@ inline CUDA_HOSTDEV auto make_md_zip_range(MdRange1_t&       rng1,
 
     auto count = range_count(rng1);
 
-    small_array<tuple_t> firsts;
-    small_array<tuple_t> lasts;
+    small_array<tuple_t> firsts{};
+    small_array<tuple_t> lasts{};
 
     for (size_t i = 0; i < count; ++i) {
         firsts[i] = adl_make_tuple(firsts1[i], firsts2[i]);
@@ -101,8 +101,8 @@ inline CUDA_HOSTDEV auto make_md_zip_range(const MdRange1_t& rng1,
 
     auto count = range_count(rng1);
 
-    small_array<tuple_t> firsts;
-    small_array<tuple_t> lasts;
+    small_array<tuple_t> firsts{};
+    small_array<tuple_t> lasts{};
 
     for (size_t i = 0; i < count; ++i) {
         firsts[i] = adl_make_tuple(firsts1[i], firsts2[i]);
@@ -129,8 +129,8 @@ inline CUDA_HOSTDEV auto make_md_zip_range(const MdRange1_t& rng1,
 
     auto count = range_count(rng1);
 
-    small_array<tuple_t> firsts;
-    small_array<tuple_t> lasts;
+    small_array<tuple_t> firsts{};
+    small_array<tuple_t> lasts{};
 
     for (size_t i = 0; i < count; ++i) {
         firsts[i] = adl_make_tuple(firsts1[i], firsts2[i]);

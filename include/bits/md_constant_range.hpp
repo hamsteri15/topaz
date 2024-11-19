@@ -23,7 +23,7 @@ private:
     inline CUDA_HOSTDEV small_array<Range<iterator>> make(
         value_type c, size_t count, const small_array<difference_type>& sizes) {
 
-        small_array<Range<iterator>> ret;
+        small_array<Range<iterator>> ret{};
         for (size_t i = 0; i < count; ++i) {
             ret[i] = make_constant_range(c, sizes[i]);
         }

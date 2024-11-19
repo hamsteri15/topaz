@@ -68,4 +68,11 @@ public:
     }
 };
 
+/*
+template<class T, class Allocator>
+struct IsNumericVector<NumericArray<T, Allocator>> : public std::true_type {};
+*/
+
+
+
 } // namespace topaz

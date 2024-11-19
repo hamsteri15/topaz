@@ -13,6 +13,9 @@ struct MdRange {
     using reference  = typename std::iterator_traits<Iterator>::reference;
     using difference_type = typename std::iterator_traits<Iterator>::difference_type;
 
+    static constexpr bool is_md_range = true;
+
+
     inline CUDA_HOSTDEV MdRange(size_t                       count,
                                 const small_array<Range<iterator>>& ranges)
         : m_count(count)
@@ -43,7 +46,7 @@ CUDA_HOSTDEV auto make_md_range(const T& t) {
 
     auto count = range_count(t);
     using iterator = decltype((*t.begin()).begin());
-    small_array<Range<iterator>> ranges;
+    small_array<Range<iterator>> ranges{};
     for (size_t i = 0; i < count; ++i) { ranges[i] = make_range(t[i]); }
     return MdRange<iterator>(count, ranges);
 }
@@ -53,7 +56,7 @@ CUDA_HOSTDEV auto make_md_range(T& t) {
 
     auto count = range_count(t);
     using iterator = decltype((*t.begin()).begin());
-    small_array<Range<iterator>> ranges;
+    small_array<Range<iterator>> ranges{};
     for (size_t i = 0; i < count; ++i) { ranges[i] = make_range(t[i]); }
     return MdRange<iterator>(count, ranges);
 }

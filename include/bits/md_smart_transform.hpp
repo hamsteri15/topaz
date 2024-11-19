@@ -1,58 +1,89 @@
 #pragma once
 
-#include "traits.hpp"
+#include "md_traits.hpp"
 #include "md_range.hpp"
 #include "md_constant_range.hpp"
 namespace topaz{
 
 
-/*
-template <class T1, class T2>
-inline CUDA_HOSTDEV auto determine_size(const T1&, const T2& rhs)
-    -> std::enable_if_t<IsScalar_v<T1>, typename T2::difference_type> {
-    return adl_size(rhs);
-}
-template <class T1, class T2>
-inline CUDA_HOSTDEV auto determine_size(const T1& lhs, const T2&)
-    -> std::enable_if_t<IsScalar_v<T2>, typename T1::difference_type> {
-    return adl_size(lhs);
-}
 
+template <class T1, class T2>
+inline CUDA_HOSTDEV auto md_determine_size(const T1&, const T2& rhs)
+    -> std::enable_if_t<IsScalar_v<T1>, small_array<typename T2::difference_type>> {
+    return md_size(rhs);
+}
+template <class T1, class T2>
+inline CUDA_HOSTDEV auto md_determine_size(const T1& lhs, const T2&)
+    -> std::enable_if_t<IsScalar_v<T2>, small_array<typename T1::difference_type>> {
+    return md_size(lhs);
+}
 template <class T1,
           class T2,
-          typename = std::enable_if_t<BothRangesOrNumericArrays_v<T1, T2>>>
-inline CUDA_HOSTDEV auto determine_size(const T1& lhs, const T2&) {
-    return adl_size(lhs);
+          typename = std::enable_if_t<BothMdRangesOrMdNumericArrays_v<T1, T2>>>
+inline CUDA_HOSTDEV auto md_determine_size(const T1& lhs, const T2&) {
+    return md_size(lhs);
 }
 
-template <class Range_t,
-          class Size,
-          typename = std::enable_if_t<!IsScalar_v<Range_t>>>
-inline CUDA_HOSTDEV auto rangify(Range_t& rng, Size n) {
-    return take(rng, n);
+
+
+template <class T1, class T2>
+inline CUDA_HOSTDEV auto md_determine_range_count(const T1&, const T2& rhs)
+    -> std::enable_if_t<IsScalar_v<T1>, size_t> {
+    return range_count(rhs);
+}
+template <class T1, class T2>
+inline CUDA_HOSTDEV auto md_determine_range_count(const T1& lhs, const T2&)
+    -> std::enable_if_t<IsScalar_v<T2>, size_t> {
+    return range_count(lhs);
+}
+template <class T1,
+          class T2,
+          typename = std::enable_if_t<BothMdRangesOrMdNumericArrays_v<T1, T2>>>
+inline CUDA_HOSTDEV auto md_determine_range_count(const T1& lhs, const T2&) {
+    return range_count(lhs);
 }
 
-template <class Range_t,
+
+
+
+
+
+template <class MdRange_t,
           class Size,
-          typename = std::enable_if_t<!IsScalar_v<Range_t>>>
-inline CUDA_HOSTDEV auto rangify(const Range_t& rng, Size n) {
-    return take(rng, n);
+          typename = std::enable_if_t<!IsScalar_v<MdRange_t>>>
+inline CUDA_HOSTDEV auto md_rangify(MdRange_t& rng, const small_array<Size>& sizes, size_t count) {
+    (void) sizes;
+    (void) count;
+    return make_md_range(rng);
+    //return take(rng, n);
+}
+
+template <class MdRange_t,
+          class Size,
+          typename = std::enable_if_t<!IsScalar_v<MdRange_t>>>
+inline CUDA_HOSTDEV auto md_rangify(const MdRange_t& rng, const small_array<Size>& sizes, size_t count) {
+    (void) sizes;
+    (void) count;
+    return make_md_range(rng);
+    //return take(rng, n);
 }
 
 template <class Scalar,
           class Size,
           std::enable_if_t<IsScalar_v<Scalar>, bool> = true>
-inline CUDA_HOSTDEV auto rangify(const Scalar& s, Size n) {
-    return make_constant_range<Scalar, Size>(s, n);
+inline CUDA_HOSTDEV auto md_rangify(const Scalar& s, const small_array<Size>& sizes, size_t count) {
+    return make_md_constant_range<Scalar, Size>(s, count, sizes);
 }
 
 template <class T1, class T2, class BinaryOp>
 inline CUDA_HOSTDEV auto
-smart_transform(const T1& lhs, const T2& rhs, BinaryOp f) {
-    auto size = determine_size(lhs, rhs);
-    return transform(rangify(lhs, size), rangify(rhs, size), f);
+md_smart_transform(const T1& lhs, const T2& rhs, BinaryOp f) {
+    
+    const auto size = md_determine_size(lhs, rhs);
+    const auto count = md_determine_range_count(lhs, rhs);
+    return md_transform(md_rangify(lhs, size, count), md_rangify(rhs, size, count), f);
 }
-*/
+
 
 
 }

@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX := g++
-CXXFLAGS := -Iinclude -Itest -std=c++14 -Wall -Wextra
+CXXFLAGS := -Iinclude -Itest -std=c++20 -Wall -Wextra
 
 #CXX := nvcc
 #CXXFLAGS := -Iinclude -Itest -std=c++14 -x cu -expt-relaxed-constexpr -extended-lambda

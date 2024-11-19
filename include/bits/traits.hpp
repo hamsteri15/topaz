@@ -134,14 +134,4 @@ constexpr bool SupportsBinaryExpression_v = SupportsBinaryExpression<T1,T2>::val
 
 
 
-
-
-
-
-
-
-
-
-
-
 } // namespace topaz

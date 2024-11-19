@@ -18,6 +18,10 @@ using NVec_t = topaz::NumericArray<T, thrust::device_malloc_allocator<T>>;
 
 namespace alglib = thrust;
 
+
+template<class T>
+using MDArray_t = topaz::MdNumericArray<T, thrust::device_malloc_allocator<T>>;
+
 #else
 #include <vector>
 template<class T>
@@ -28,6 +32,8 @@ using NVec_t = topaz::NumericArray<T, std::allocator<T>>;
 
 namespace alglib = std;
 
+template<class T>
+using MDArray_t = topaz::MdNumericArray<T, std::allocator<T>>;
 
 
 #endif
@@ -824,7 +830,7 @@ TEST_CASE("Test MdConstantRange"){
     SECTION("make_md_constant_range"){
 
         auto sizes = [](){
-            small_array<std::ptrdiff_t> ret;
+            small_array<std::ptrdiff_t> ret{};
             ret[0] = 3;
             ret[1] = 5;
             return ret;
@@ -839,12 +845,16 @@ TEST_CASE("Test MdConstantRange"){
 
         CHECK(range_count(rng) == 2);
 
+        CHECK(md_size(rng) == sizes());
+
     }
 
         
 
 
 }
+
+
 
 
 TEST_CASE("Test MdTransformRange"){
@@ -971,8 +981,55 @@ TEST_CASE("Test MdTransformRange"){
         
     }
 
-    
 }
+
+TEST_CASE("md_smart_transform"){
+
+    using namespace topaz;
+    using Array = std::vector<NVec_t<int>>;
+
+    Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+    //Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+
+    SECTION("md_determine_size"){
+        
+        CHECK(md_determine_size(a1, int(4)) == md_size(a1));
+        CHECK(md_determine_size(int(4), a1) == md_size(a1));
+        //CHECK(md_determine_size(a1, a1) == md_size(a1));
+
+    }
+
+    SECTION("md_determine_range_count"){
+        
+        CHECK(md_determine_range_count(a1, int(4)) == 2);
+        CHECK(md_determine_range_count(int(4), a1) == 2);
+        //CHECK(md_determine_size(a1, a1) == md_size(a1));
+
+    }
+
+    SECTION("Test 1"){
+
+
+        auto s1 = md_smart_transform(a1, int(3), std::plus<int>{});
+
+        CHECK(std::vector<int>(s1[0].begin(), s1[0].end()) == std::vector<int>{4, 6, 7});
+        CHECK(std::vector<int>(s1[1].begin(), s1[1].end()) == std::vector<int>{4, 5});
+
+        auto s2 = md_smart_transform(int(3), a1, std::plus<int>{});
+
+        CHECK(std::vector<int>(s2[0].begin(), s2[0].end()) == std::vector<int>{4, 6, 7});
+        CHECK(std::vector<int>(s2[1].begin(), s2[1].end()) == std::vector<int>{4, 5});
+
+
+        //auto t1 = md_smart_transform(a1, int(3), std::plus<int>{});
+
+    }
+
+
+
+
+}
+
 
 TEST_CASE("Test MdZipRange"){
     using namespace topaz;
@@ -985,5 +1042,38 @@ TEST_CASE("Test MdZipRange"){
 
         auto z = make_md_zip_range(a1, a1);
     }
+}
+
+TEST_CASE("Test MdNumericArray"){
+
+    using namespace topaz;
+
+    using MDVec_t = MDArray_t<int>;
+
+    MDVec_t a1(NVec_t<int>{3,3}, {NVec_t<int>{3,3,3}, NVec_t<int>{}});
+    MDVec_t a2(NVec_t<int>{3,3}, {NVec_t<int>{3,3,3}, NVec_t<int>{}});
+
+    CHECK(range_count(a1) == 3);
+
+    auto rng = a1 + a2;
+    CHECK(std::vector<int>(rng[0].begin(), rng[0].end()) == std::vector<int>{6,6});
+
+    /*
+    auto rng = md_smart_transform(a1, a2, std::plus<int>{});
+
+
+    CHECK(SupportsBinaryExpression_v<MDVec_t, MDVec_t> == false);
+    CHECK(IsNumericVector_v<MDVec_t> == false);
+    CHECK(IsRange_v<MDVec_t> == false);
+    CHECK(IsScalar_v<MDVec_t> == false);
+    CHECK(IsRangeOrNumericArray_v<MDVec_t> == false);
+    CHECK(BothRangesOrNumericArrays_v<MDVec_t, MDVec_t> == false);
+
+    */
+    //CHECK(SupportsBinaryExpression_v<MDVec_t, MDVec_t> == false);
+
+    //auto r3 = a1 + a2;
+
+
 }
 
