@@ -162,11 +162,17 @@ CUDA_HOSTDEV auto md_size(const MdNumericArray<T, Allocator>& a) {
     return ret;
 }
 
+//template<typename T, class Allocator>
+//struct IsMdRange<MdNumericArray<T, Allocator>> : public std::true_type {};
+
+
+/*
 template<typename T, class Allocator>
 struct IsMdNumericVector<MdNumericArray<T, Allocator>> : public std::true_type {};
+*/
 
 
-
+/*
 
 template <class T1,
           class T2,
@@ -175,6 +181,7 @@ inline CUDA_HOSTDEV auto operator+(const T1& lhs, const T2& rhs) {
 
     return md_smart_transform(lhs, rhs, Plus{});
 }
+*/
 
 
 } // namespace topaz

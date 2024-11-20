@@ -46,7 +46,10 @@ inline CUDA_HOSTDEV auto rangify(const Scalar& s, Size n) {
     return make_constant_range<Scalar, Size>(s, n);
 }
 
-template <class T1, class T2, class BinaryOp>
+template <class T1,
+          class T2,
+          class BinaryOp,
+          std::enable_if_t<AtleastOneIsRange_v<T1, T2>, bool> = true>
 inline CUDA_HOSTDEV auto
 smart_transform(const T1& lhs, const T2& rhs, BinaryOp f) {
     auto size = determine_size(lhs, rhs);

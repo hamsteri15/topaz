@@ -6,6 +6,24 @@
 
 namespace topaz {
 
+template<class T, typename = void>
+struct IsMdRange : public std::false_type{}; 
+
+/*
+template<typename T>
+struct IsMdRange<T, std::void_t<
+    decltype(range_count(std::declval<T>())),
+    decltype(make_md_range(std::declval<T>())),
+    decltype(md_begin(std::declval<T>())),
+    decltype(md_end(std::declval<T>()))
+>> : public std::true_type{};
+
+*/
+
+template<typename T>
+static constexpr bool IsMdRange_v = IsMdRange<T>::value;
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -24,23 +42,6 @@ constexpr bool IsMdNumericVector_v = IsMdNumericVector<T>::value;
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-
-template<typename T, typename = void>
-struct IsMdRange : std::false_type {};
-
-/*
-template<typename T>
-struct IsMdRange<T, std::enable_if_t< T::is_md_range >>
-: public std::true_type {};
-*/
-
-
-
-template< typename T >
-constexpr bool IsMdRange_v = IsMdRange<T>::value;
-
-
-///////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -108,7 +109,18 @@ template< typename T1, typename T2 >
 constexpr bool SupportsMdBinaryExpression_v = SupportsMdBinaryExpression<T1,T2>::value;
 ///////////////////////////////////////////////////////////////////////////////////
 
+template< typename T1, typename T2, typename = void >
+struct AtleastOneIsMdRange
+   : public std::false_type {};
 
+
+template<typename T1, typename T2>
+struct AtleastOneIsMdRange<T1, T2, std::enable_if_t<IsMdRange_v<T1>||IsMdRange_v<T2>>> : public std::true_type{};
+
+template< typename T1, typename T2 >
+constexpr bool AtleastOneIsMdRange_v = AtleastOneIsMdRange<T1,T2>::value;
+
+///////////////////////////////////////////////////////////////////////////////////
 
 
 

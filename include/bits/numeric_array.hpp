@@ -33,6 +33,7 @@ public:
     using value_type = typename parent::value_type;
 
     static constexpr bool is_numeric_vector = true;
+    static constexpr bool is_range = true;
 
     inline NumericArray() = default;
 

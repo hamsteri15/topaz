@@ -779,6 +779,62 @@ struct BinaryTester{
     CUDA_HOSTDEV int operator()(const Tuple& tpl) const {return topaz::get<0>(tpl) + topaz::get<1>(tpl);}
 };
 
+namespace topaz{
+
+template<class T>
+size_t range_count(const std::vector<NVec_t<T>>& a){return a.size();}
+
+template<class T>
+auto md_begin(const std::vector<NVec_t<T>>& a){
+
+    using iterator = typename NVec_t<T>::const_iterator;
+    small_array<iterator> ret{};
+    for (size_t i = 0; i < range_count(a); ++i)
+    {
+        ret[i] = adl_begin(a[i]);
+    }
+    return ret;
+}
+
+template<class T>
+auto md_begin(std::vector<NVec_t<T>>& a){
+
+    using iterator = typename NVec_t<T>::iterator;
+    small_array<iterator> ret{};
+    for (size_t i = 0; i < range_count(a); ++i)
+    {
+        ret[i] = adl_begin(a[i]);
+    }
+    return ret;
+}
+
+template<class T>
+auto md_end(const std::vector<NVec_t<T>>& a){
+
+    using iterator = typename NVec_t<T>::const_iterator;
+    small_array<iterator> ret{};
+    for (size_t i = 0; i < range_count(a); ++i)
+    {
+        ret[i] = adl_end(a[i]);
+    }
+    return ret;
+}
+
+template<class T>
+auto md_end(std::vector<NVec_t<T>>& a){
+
+    using iterator = typename NVec_t<T>::iterator;
+    small_array<iterator> ret{};
+    for (size_t i = 0; i < range_count(a); ++i)
+    {
+        ret[i] = adl_end(a[i]);
+    }
+    return ret;
+}
+
+
+}
+
 TEST_CASE("Test MdRange"){
 
     using namespace topaz;
@@ -988,6 +1044,8 @@ TEST_CASE("md_smart_transform"){
     using namespace topaz;
     using Array = std::vector<NVec_t<int>>;
 
+    //using Array = std::vector<NVec_t<int>>;
+
     Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
     //Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
@@ -1010,15 +1068,17 @@ TEST_CASE("md_smart_transform"){
     SECTION("Test 1"){
 
 
-        auto s1 = md_smart_transform(a1, int(3), std::plus<int>{});
+        //auto asd = smart_transform(a1, a1, std::plus<int>{});
 
-        CHECK(std::vector<int>(s1[0].begin(), s1[0].end()) == std::vector<int>{4, 6, 7});
-        CHECK(std::vector<int>(s1[1].begin(), s1[1].end()) == std::vector<int>{4, 5});
+        //auto s1 = smart_transform(a1, int(3), std::plus<int>{});
 
-        auto s2 = md_smart_transform(int(3), a1, std::plus<int>{});
+        //CHECK(std::vector<int>(s1[0].begin(), s1[0].end()) == std::vector<int>{4, 6, 7});
+        //CHECK(std::vector<int>(s1[1].begin(), s1[1].end()) == std::vector<int>{4, 5});
 
-        CHECK(std::vector<int>(s2[0].begin(), s2[0].end()) == std::vector<int>{4, 6, 7});
-        CHECK(std::vector<int>(s2[1].begin(), s2[1].end()) == std::vector<int>{4, 5});
+        //auto s2 = smart_transform(int(3), a1, std::plus<int>{});
+
+        //CHECK(std::vector<int>(s2[0].begin(), s2[0].end()) == std::vector<int>{4, 6, 7});
+        //CHECK(std::vector<int>(s2[1].begin(), s2[1].end()) == std::vector<int>{4, 5});
 
 
         //auto t1 = md_smart_transform(a1, int(3), std::plus<int>{});
@@ -1033,8 +1093,9 @@ TEST_CASE("md_smart_transform"){
 
 TEST_CASE("Test MdZipRange"){
     using namespace topaz;
-
     using Array = std::vector<NVec_t<int>>;
+    
+
 
     SECTION("make_md_zip_range"){
 
@@ -1055,8 +1116,8 @@ TEST_CASE("Test MdNumericArray"){
 
     CHECK(range_count(a1) == 3);
 
-    auto rng = a1 + a2;
-    CHECK(std::vector<int>(rng[0].begin(), rng[0].end()) == std::vector<int>{6,6});
+    //auto rng = a1 + a2;
+    //CHECK(std::vector<int>(rng[0].begin(), rng[0].end()) == std::vector<int>{6,6});
 
     /*
     auto rng = md_smart_transform(a1, a2, std::plus<int>{});

@@ -75,6 +75,9 @@ inline CUDA_HOSTDEV auto md_rangify(const Scalar& s, const small_array<Size>& si
     return make_md_constant_range<Scalar, Size>(s, count, sizes);
 }
 
+
+/*
+
 template <class T1, class T2, class BinaryOp>
 inline CUDA_HOSTDEV auto
 md_smart_transform(const T1& lhs, const T2& rhs, BinaryOp f) {
@@ -83,6 +86,21 @@ md_smart_transform(const T1& lhs, const T2& rhs, BinaryOp f) {
     const auto count = md_determine_range_count(lhs, rhs);
     return md_transform(md_rangify(lhs, size, count), md_rangify(rhs, size, count), f);
 }
+
+*/
+
+template <class T1,
+          class T2,
+          class BinaryOp,
+          std::enable_if_t<AtleastOneIsMdRange_v<T1, T2>, bool> = true>
+inline CUDA_HOSTDEV auto
+smart_transform(const T1& lhs, const T2& rhs, BinaryOp f) {
+    const auto size = md_determine_size(lhs, rhs);
+    const auto count = md_determine_range_count(lhs, rhs);
+    return md_transform(md_rangify(lhs, size, count), md_rangify(rhs, size, count), f);
+}
+
+
 
 
 

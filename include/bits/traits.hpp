@@ -6,6 +6,27 @@
 
 namespace topaz {
 
+
+template<class T, typename = void>
+struct IsMathematical : public std::false_type{}; 
+
+
+template<typename T>
+struct IsMathematical<T, std::void_t<
+    decltype(std::declval<T>() + std::declval<T>()),
+    decltype(std::declval<T>() - std::declval<T>()),
+    decltype(std::declval<T>() * std::declval<T>()),
+    decltype(std::declval<T>() / std::declval<T>())
+>> : public std::true_type{};
+
+template<typename T>
+static constexpr bool IsMathematical_v = IsMathematical<T>::value;
+
+
+///////////////////////////////////////////////////////////////////////////////////
+
+
+
 template<typename T>
 struct IsScalar : std::is_arithmetic<T> {};
 
@@ -129,7 +150,16 @@ constexpr bool SupportsBinaryExpression_v = SupportsBinaryExpression<T1,T2>::val
 
 
 
+template< typename T1, typename T2, typename = void >
+struct AtleastOneIsRange
+   : public std::false_type {};
 
+
+template<typename T1, typename T2>
+struct AtleastOneIsRange<T1, T2, std::enable_if_t<IsRange_v<T1>||IsRange_v<T2>>> : public std::true_type{};
+
+template< typename T1, typename T2 >
+constexpr bool AtleastOneIsRange_v = AtleastOneIsRange<T1,T2>::value;
 
 
 
