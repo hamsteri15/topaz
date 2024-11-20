@@ -833,7 +833,26 @@ auto md_end(std::vector<NVec_t<T>>& a){
 }
 
 
+template<class T, std::enable_if_t<IsRange_v<T>, bool> = true>
+void f(const T& a) {
+    std::cout << "Flat range called" << std::endl;
 }
+
+template<class T, std::enable_if_t<IsMdRange_v<T>, bool> = true>
+void f(const T& a) {
+    std::cout << "RangeRange called" << std::endl;
+}
+
+
+
+}
+
+
+
+
+
+
+
 
 TEST_CASE("Test MdRange"){
 
@@ -841,8 +860,39 @@ TEST_CASE("Test MdRange"){
 
     using Array = std::vector<NVec_t<int>>;
 
+    CHECK
+    (
+        IsMdRange_v<std::vector<int>> == false
+    );
+    CHECK
+    (
+        IsMdRange_v<Array> == true
+    );
+
+    CHECK
+    (
+        IsRange_v<Array> == false
+    );
+
+    CHECK
+    (
+        IsRange_v<std::vector<std::vector<int>>> == false
+    );
+    
+    CHECK
+    (
+        IsRange_v<std::vector<int>> == true
+    );
+
+
+    //f(std::vector<int>{});
+    //f(std::vector<std::vector<int>>{});
+
+
     SECTION("make_md_range"){
         Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
+
+        //REQUIRE_NOTHROW(make_range(a1));
 
         REQUIRE_NOTHROW(make_md_range(a1));
 

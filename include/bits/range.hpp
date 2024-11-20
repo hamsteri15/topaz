@@ -61,13 +61,13 @@ CUDA_HOSTDEV auto make_range(Iterator first, Iterator last) {
     return Range<Iterator>(first, last);
 }
 
-template <class Range_t>
+template <class Range_t, std::enable_if_t<IsRange_v<Range_t>, bool> = true>
 CUDA_HOSTDEV auto make_range(Range_t& rng) {
     using iterator = decltype(std::begin(rng));
     return Range<iterator>(rng);
 }
 
-template <class Range_t>
+template <class Range_t, std::enable_if_t<IsRange_v<Range_t>, bool> = true>
 CUDA_HOSTDEV auto make_range(const Range_t& rng) {
     using iterator = decltype(std::begin(rng));
     return Range<iterator>(rng);

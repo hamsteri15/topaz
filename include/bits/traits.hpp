@@ -38,11 +38,11 @@ static constexpr bool IsScalar_v = IsScalar<T>::value;
 template <typename T, typename = void>
 struct IsIterator : public std::false_type {};
 
+
 template <typename T>
-struct IsIterator<T,
-                  typename std::enable_if<!std::is_same<
-                      typename std::iterator_traits<T>::value_type,
-                      void>::value>::type> : public std::true_type {};
+struct IsIterator<T, std::void_t<
+    typename std::iterator_traits<T>::iterator_category  // Check if iterator_traits is valid
+>> : std::true_type {};
 
 template<typename T>
 constexpr bool IsIterator_v = IsIterator<T>::value;
@@ -107,6 +107,7 @@ struct IsRange<T, std::void_t<
 
 */
 
+/*
 template <typename T>
 struct IsRange<T, std::void_t<
     decltype(std::declval<T>().begin()),  // Check if begin() exists
@@ -118,7 +119,19 @@ struct IsRange<T, std::void_t<
     IsIterator_v<decltype(std::declval<T>().end())> &&    // Check if end() is an iterator
     !IsIterator_v<typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type> // Check if value_type is NOT an iterator
 > {};
+*/
 
+template <typename T>
+struct IsRange<T, std::void_t<
+    decltype(std::declval<T>().begin()), // Check if begin() exists
+    decltype(std::declval<T>().end()),   // Check if end() exists
+    typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type, // Ensure value_type is valid
+    typename std::iterator_traits<decltype(std::declval<T>().end())>::value_type
+>> : std::bool_constant<
+    IsIterator_v<decltype(std::declval<T>().begin())> &&  // begin() is an iterator
+    IsIterator_v<decltype(std::declval<T>().end())> &&    // end() is an iterator
+    !IsRange<typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type>::value // Recursive: value_type is not a range
+> {};
 
 /*
 template<typename T>

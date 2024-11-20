@@ -3,6 +3,7 @@
 #include "begin_end.hpp"
 #include "md_traits.hpp"
 #include "small_array.hpp"
+#include "range.hpp"
 
 namespace topaz {
 
@@ -86,6 +87,24 @@ CUDA_HOSTDEV auto md_size(const T& t) {
     }
     return ret;
 }
+
+/*
+template <typename T, std::enable_if_t<IsMdRange_v<T>, bool> = true>
+CUDA_HOSTDEV auto make_range(const T& t) {
+
+    auto count = range_count(t);
+
+    auto beg       = md_begin(t);
+    auto end       = md_end(t);
+    using iterator = typename decltype(beg)::value_type;
+
+    small_array<Range<iterator>> ranges{};
+    for (size_t i = 0; i < count; ++i) {
+        ranges[i] = make_range(beg[i], end[i]);
+    }
+    return MdRange<iterator>(count, ranges);
+}
+*/
 
 template <typename T, std::enable_if_t<IsMdRange_v<T>, bool> = true>
 CUDA_HOSTDEV auto make_md_range(const T& t) {
