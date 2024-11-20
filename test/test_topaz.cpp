@@ -933,7 +933,7 @@ TEST_CASE("Test MdConstantRange"){
 
     using Array = std::vector<NVec_t<int>>;
 
-    SECTION("make_md_constant_range"){
+    SECTION("make_constant_range"){
 
         auto sizes = [](){
             small_array<std::ptrdiff_t> ret{};
@@ -942,7 +942,7 @@ TEST_CASE("Test MdConstantRange"){
             return ret;
         };
 
-        auto rng = make_md_constant_range(int(4), 2, sizes());
+        auto rng = make_constant_range(int(4), 2, sizes());
 
         CHECK(rng[0][0] == 4);
         CHECK(rng[1][0] == 4);
@@ -1117,6 +1117,11 @@ TEST_CASE("md_smart_transform"){
 
     SECTION("Test 1"){
 
+        REQUIRE_NOTHROW(smart_transform(a1, a1, std::plus<int>{}));
+        REQUIRE_NOTHROW(smart_transform(int(1), a1, std::plus<int>{}));
+        REQUIRE_NOTHROW(smart_transform(a1, int(1), std::plus<int>{}));
+
+
 
         //auto asd = smart_transform(a1, a1, std::plus<int>{});
 
@@ -1166,8 +1171,8 @@ TEST_CASE("Test MdNumericArray"){
 
     CHECK(range_count(a1) == 3);
 
-    //auto rng = a1 + a2;
-    //CHECK(std::vector<int>(rng[0].begin(), rng[0].end()) == std::vector<int>{6,6});
+    auto rng = a1 + a2;
+    CHECK(std::vector<int>(rng[0].begin(), rng[0].end()) == std::vector<int>{6,6});
 
     /*
     auto rng = md_smart_transform(a1, a2, std::plus<int>{});

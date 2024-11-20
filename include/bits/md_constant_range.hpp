@@ -34,7 +34,7 @@ private:
 
 template <typename Value, typename Size>
 inline CUDA_HOSTDEV auto
-make_md_constant_range(Value c, size_t count, const small_array<Size>& sizes) {
+make_constant_range(Value c, size_t count, const small_array<Size>& sizes) {
 
     return MdConstantRange<Value>(c, count, sizes);
 }
