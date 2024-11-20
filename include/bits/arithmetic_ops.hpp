@@ -150,7 +150,7 @@ inline CUDA_HOSTDEV auto operator+(const T1& lhs, const T2& rhs) {
 
 template <class T1,
           class T2,
-          typename = std::enable_if_t<SupportsBinaryExpression_v<T1, T2>>>
+          std::enable_if_t<SupportsBinaryExpression_v<T1, T2>, bool> = true>
 inline CUDA_HOSTDEV auto operator-(const T1& lhs, const T2& rhs) {
 
     return smart_transform(lhs, rhs, Minus{});
@@ -158,7 +158,7 @@ inline CUDA_HOSTDEV auto operator-(const T1& lhs, const T2& rhs) {
 
 template <class T1,
           class T2,
-          typename = std::enable_if_t<SupportsBinaryExpression_v<T1, T2>>>
+          std::enable_if_t<SupportsBinaryExpression_v<T1, T2>, bool> = true>
 inline CUDA_HOSTDEV auto operator*(const T1& lhs, const T2& rhs) {
 
     return smart_transform(lhs, rhs, Multiplies{});
@@ -166,7 +166,7 @@ inline CUDA_HOSTDEV auto operator*(const T1& lhs, const T2& rhs) {
 
 template <class T1,
           class T2,
-          typename = std::enable_if_t<SupportsBinaryExpression_v<T1, T2>>>
+          std::enable_if_t<SupportsBinaryExpression_v<T1, T2>, bool> = true>
 inline CUDA_HOSTDEV auto operator/(const T1& lhs, const T2& rhs) {
 
     return smart_transform(lhs, rhs, Divides{});
@@ -174,7 +174,7 @@ inline CUDA_HOSTDEV auto operator/(const T1& lhs, const T2& rhs) {
 
 template <class T1,
           class T2,
-          typename = std::enable_if_t<SupportsBinaryExpression_v<T1, T2>>>
+          std::enable_if_t<SupportsBinaryExpression_v<T1, T2>, bool> = true>
 inline CUDA_HOSTDEV auto max(const T1& lhs, const T2& rhs) {
 
     return smart_transform(lhs, rhs, Max{});
@@ -182,58 +182,57 @@ inline CUDA_HOSTDEV auto max(const T1& lhs, const T2& rhs) {
 
 template <class T1,
           class T2,
-          typename = std::enable_if_t<SupportsBinaryExpression_v<T1, T2>>>
+          std::enable_if_t<SupportsBinaryExpression_v<T1, T2>, bool> = true>
 inline CUDA_HOSTDEV auto min(const T1& lhs, const T2& rhs) {
 
     return smart_transform(lhs, rhs, Min{});
 }
 
-
-template <class T, class Scalar_t, typename = std::enable_if_t<IsRangeOrNumericArray_v<T> && IsScalar_v<Scalar_t>>>
+template <class T, 
+          class Scalar_t,
+          std::enable_if_t<IsRangeOrNumericArray_v<T> && IsScalar_v<Scalar_t>, bool> = true> 
 inline CUDA_HOSTDEV auto pow(const T& t, Scalar_t power) {
     return smart_transform(t, power, Pow{});
 }
 
-
-
-template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+template <class T, std::enable_if_t<IsRangeOrNumericArray_v<T>, bool> = true>
 inline CUDA_HOSTDEV auto sqr(const T& t) {
     return t * t;
 }
 
-template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+template <class T, std::enable_if_t<IsRangeOrNumericArray_v<T>, bool> = true>
 inline CUDA_HOSTDEV auto sqrt(const T& t) {
     return transform(t, Sqrt{});
 }
 
-template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+template <class T, std::enable_if_t<IsRangeOrNumericArray_v<T>, bool> = true>
 inline CUDA_HOSTDEV auto pow2(const T& t) {
     using value_type = typename T::value_type;
     return pow(t, value_type(2));
 }
 
-template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+template <class T, std::enable_if_t<IsRangeOrNumericArray_v<T>, bool> = true>
 inline CUDA_HOSTDEV auto pow3(const T& t) {
     using value_type = typename T::value_type;
     return pow(t, value_type(3));
 }
 
-template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+template <class T, std::enable_if_t<IsRangeOrNumericArray_v<T>, bool> = true>
 inline CUDA_HOSTDEV auto exp(const T& t) {
     return transform(t, Exp{});
 }
 
-template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+template <class T, std::enable_if_t<IsRangeOrNumericArray_v<T>, bool> = true>
 inline CUDA_HOSTDEV auto log(const T& t) {
     return transform(t, Log_e{});
 }
 
-template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+template <class T, std::enable_if_t<IsRangeOrNumericArray_v<T>, bool> = true>
 inline CUDA_HOSTDEV auto erf(const T& t) {
     return transform(t, Erf{});
 }
 
-template <class T, typename = std::enable_if_t<IsRangeOrNumericArray_v<T>>>
+template <class T, std::enable_if_t<IsRangeOrNumericArray_v<T>, bool> = true>
 inline CUDA_HOSTDEV auto cbrt(const T& t) {
     return transform(t, Cbrt{});
 }
