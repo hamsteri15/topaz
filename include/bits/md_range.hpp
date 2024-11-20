@@ -1,8 +1,8 @@
 #pragma once
 
 #include "begin_end.hpp"
-#include "small_array.hpp"
 #include "md_traits.hpp"
+#include "small_array.hpp"
 
 namespace topaz {
 
@@ -12,17 +12,12 @@ struct MdRange {
     using iterator   = Iterator;
     using value_type = typename std::iterator_traits<Iterator>::value_type;
     using reference  = typename std::iterator_traits<Iterator>::reference;
-    using difference_type = typename std::iterator_traits<Iterator>::difference_type;
-    inline CUDA_HOSTDEV MdRange(size_t                       count,
+    using difference_type =
+        typename std::iterator_traits<Iterator>::difference_type;
+    inline CUDA_HOSTDEV MdRange(size_t                              count,
                                 const small_array<Range<iterator>>& ranges)
         : m_count(count)
         , m_ranges(ranges) {}
-
-    auto CUDA_HOSTDEV begin() { return m_ranges.begin(); }
-    auto CUDA_HOSTDEV begin() const { return m_ranges.begin(); }
-
-    auto CUDA_HOSTDEV end() { return m_ranges.begin() + m_count; }
-    auto CUDA_HOSTDEV end() const { return m_ranges.begin() + m_count; }
 
     inline CUDA_HOSTDEV size_t size() const { return m_count; }
 
@@ -33,6 +28,8 @@ struct MdRange {
     small_array<Range<iterator>> m_ranges;
 };
 
+//These are the functions that are required to satisfy the IsMdRange type
+
 template <typename Iterator>
 CUDA_HOSTDEV size_t range_count(const MdRange<Iterator>& rng) {
     return rng.size();
@@ -42,9 +39,7 @@ template <typename Iterator>
 CUDA_HOSTDEV auto md_begin(const MdRange<Iterator>& t) {
 
     small_array<Iterator> ret{};
-    for (size_t i = 0; i < range_count(t); ++i) {
-        ret[i] = adl_begin(t[i]);
-    }
+    for (size_t i = 0; i < range_count(t); ++i) { ret[i] = adl_begin(t[i]); }
     return ret;
 }
 
@@ -52,9 +47,7 @@ template <typename Iterator>
 CUDA_HOSTDEV auto md_begin(MdRange<Iterator>& t) {
 
     small_array<Iterator> ret{};
-    for (size_t i = 0; i < range_count(t); ++i) {
-        ret[i] = adl_begin(t[i]);
-    }
+    for (size_t i = 0; i < range_count(t); ++i) { ret[i] = adl_begin(t[i]); }
     return ret;
 }
 
@@ -62,9 +55,7 @@ template <typename Iterator>
 CUDA_HOSTDEV auto md_end(const MdRange<Iterator>& t) {
 
     small_array<Iterator> ret{};
-    for (size_t i = 0; i < range_count(t); ++i) {
-        ret[i] = adl_end(t[i]);
-    }
+    for (size_t i = 0; i < range_count(t); ++i) { ret[i] = adl_end(t[i]); }
     return ret;
 }
 
@@ -72,70 +63,61 @@ template <typename Iterator>
 CUDA_HOSTDEV auto md_end(MdRange<Iterator>& t) {
 
     small_array<Iterator> ret{};
-    for (size_t i = 0; i < range_count(t); ++i) {
-        ret[i] = adl_end(t[i]);
-    }
+    for (size_t i = 0; i < range_count(t); ++i) { ret[i] = adl_end(t[i]); }
     return ret;
 }
 
+/////////////////////
 
 
 
+template <typename T, std::enable_if_t<IsMdRange_v<T>, bool> = true>
+CUDA_HOSTDEV auto md_size(const T& t) {
 
-
-
-template <typename MdRange_t>
-CUDA_HOSTDEV auto md_size(const MdRange_t& t) {
-
-    auto beg = md_begin(t);
-    auto end = md_end(t);
+    auto beg       = md_begin(t);
+    auto end       = md_end(t);
     using iterator = typename decltype(beg)::value_type;
-    using integer_type = typename std::iterator_traits<iterator>::difference_type;
+    using integer_type =
+        typename std::iterator_traits<iterator>::difference_type;
 
     small_array<integer_type> ret{};
-    for (size_t i = 0; i < range_count(t); ++i)
-    {
+    for (size_t i = 0; i < range_count(t); ++i) {
         ret[i] = std::distance(beg[i], end[i]);
     }
     return ret;
 }
 
-
-
-template <typename T>
+template <typename T, std::enable_if_t<IsMdRange_v<T>, bool> = true>
 CUDA_HOSTDEV auto make_md_range(const T& t) {
 
     auto count = range_count(t);
 
-    auto beg = md_begin(t);
-    auto end = md_end(t);
+    auto beg       = md_begin(t);
+    auto end       = md_end(t);
     using iterator = typename decltype(beg)::value_type;
 
     small_array<Range<iterator>> ranges{};
-    for (size_t i = 0; i < count; ++i){ranges[i] = make_range(beg[i], end[i]);}
+    for (size_t i = 0; i < count; ++i) {
+        ranges[i] = make_range(beg[i], end[i]);
+    }
     return MdRange<iterator>(count, ranges);
 }
 
-template <typename T>
+template <typename T, std::enable_if_t<IsMdRange_v<T>, bool> = true>
 CUDA_HOSTDEV auto make_md_range(T& t) {
 
     auto count = range_count(t);
 
-    auto beg = md_begin(t);
-    auto end = md_end(t);
+    auto beg       = md_begin(t);
+    auto end       = md_end(t);
     using iterator = typename decltype(beg)::value_type;
 
     small_array<Range<iterator>> ranges{};
-    for (size_t i = 0; i < count; ++i){ranges[i] = make_range(beg[i], end[i]);}
+    for (size_t i = 0; i < count; ++i) {
+        ranges[i] = make_range(beg[i], end[i]);
+    }
     return MdRange<iterator>(count, ranges);
 }
-
-
-
-
-//template<class Iterator>
-//struct IsMdRange<MdRange<Iterator>> : public std::true_type {};
-
 
 
 } // namespace topaz

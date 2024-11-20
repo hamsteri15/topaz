@@ -48,6 +48,28 @@ template<typename T>
 constexpr bool IsIterator_v = IsIterator<T>::value;
 
 ///////////////////////////////////////////////////////////////////////////////////
+
+
+template <typename, typename = void>
+struct IsMathematicalIterator : std::false_type {};
+
+template <typename T>
+struct IsMathematicalIterator<T, std::void_t<
+    typename std::iterator_traits<T>::value_type  // Extract value type
+>> : IsMathematical<typename std::iterator_traits<T>::value_type> {};
+
+
+template<typename T>
+constexpr bool IsMathematicalIterator_v = IsMathematicalIterator<T>::value;
+
+///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
 template<typename T, typename = void>
 struct IsNumericVector : std::false_type {};
 
@@ -67,12 +89,11 @@ constexpr bool IsNumericVector_v = IsNumericVector<T>::value;
 template<typename T, typename = void>
 struct IsRange : std::false_type {};
 
-
 template<typename T>
-struct IsRange<T, std::enable_if_t< T::is_range >>
-: public std::true_type {};
-
-
+struct IsRange<T, std::void_t<
+    decltype(std::declval<T>().begin()),
+    decltype(std::declval<T>().end())
+>> : public std::true_type{};
 
 
 template< typename T >
@@ -81,6 +102,25 @@ constexpr bool IsRange_v = IsRange<T>::value;
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+
+template <typename, typename = void>
+struct IsMathematicalRange : std::false_type {};
+
+template <typename T>
+struct IsMathematicalRange<T, std::void_t<
+    decltype(std::declval<T>().begin()),  // Check if begin() is valid
+    decltype(std::declval<T>().end())    // Check if end() is valid
+>> : std::conditional_t<
+    IsMathematicalIterator_v<decltype(std::declval<T>().begin())> &&  // Check if begin() returns a MathematicalIterator
+    IsMathematicalIterator_v<decltype(std::declval<T>().end())>,      // Check if end() returns a MathematicalIterator
+    std::true_type,
+    std::false_type
+> {};
+
+template< typename T >
+constexpr bool IsMathematicalRange_v = IsMathematicalRange<T>::value;
+
+///////////////////////////////////////////////////////////////////////////////////
 
 
 template<typename T, typename = void>

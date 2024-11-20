@@ -6,21 +6,6 @@
 
 namespace topaz {
 
-/*
-//Consider wrapping to this to allow for lambdas to be used prior to c++20
-//See: https://stackoverflow.com/questions/38722631/why-is-a-lambda-in-c-never-defaultconstructible
-template<auto fptr>
-struct function_pointer_t {
-  template<class...Args>
-  // or decltype(auto):
-  std::result_of_t< std::decay_t<decltype(fptr)>(Args...) >
-  operator()(Args&&...args)const
-    return fptr(std::forward<Args>(args)...);
-  }
-};
-*/
-
-
 
 template <typename UnaryFunction, typename Iterator>
 struct MdTransformRange
