@@ -54,7 +54,8 @@ struct ZipRange : public Range<detail::zip_iterator<IteratorTuple>> {
         : parent(first, last) {}
 };
 
-template <typename Range1_t, typename Range2_t>
+template <typename Range1_t, typename Range2_t,
+std::enable_if_t<BothAreRanges_v<Range1_t, Range2_t>, bool> = true>
 inline CUDA_HOSTDEV auto make_zip_range(Range1_t& rng1, Range2_t& rng2) {
 
     using iter1   = decltype(adl_begin(rng1));
@@ -65,7 +66,8 @@ inline CUDA_HOSTDEV auto make_zip_range(Range1_t& rng1, Range2_t& rng2) {
                               adl_make_tuple(adl_end(rng1), adl_end(rng2)));
 }
 
-template <typename Range1_t, typename Range2_t>
+template <typename Range1_t, typename Range2_t,
+std::enable_if_t<BothAreRanges_v<Range1_t, Range2_t>, bool> = true>
 inline CUDA_HOSTDEV auto make_zip_range(Range1_t& rng1, const Range2_t& rng2) {
 
     using iter1   = decltype(adl_begin(rng1));
@@ -76,7 +78,8 @@ inline CUDA_HOSTDEV auto make_zip_range(Range1_t& rng1, const Range2_t& rng2) {
                               adl_make_tuple(adl_end(rng1), adl_end(rng2)));
 }
 
-template <typename Range1_t, typename Range2_t>
+template <typename Range1_t, typename Range2_t,
+std::enable_if_t<BothAreRanges_v<Range1_t, Range2_t>, bool> = true>
 inline CUDA_HOSTDEV auto make_zip_range(const Range1_t& rng1, Range2_t& rng2) {
 
     using iter1   = decltype(adl_begin(rng1));
@@ -87,7 +90,8 @@ inline CUDA_HOSTDEV auto make_zip_range(const Range1_t& rng1, Range2_t& rng2) {
                               adl_make_tuple(adl_end(rng1), adl_end(rng2)));
 }
 
-template <typename Range1_t, typename Range2_t>
+template <typename Range1_t, typename Range2_t,
+std::enable_if_t<BothAreRanges_v<Range1_t, Range2_t>, bool> = true>
 inline CUDA_HOSTDEV auto make_zip_range(const Range1_t& rng1,
                                         const Range2_t& rng2) {
 

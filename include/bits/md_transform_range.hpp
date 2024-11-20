@@ -6,7 +6,6 @@
 
 namespace topaz {
 
-
 template <typename UnaryFunction, typename Iterator>
 struct MdTransformRange
     : public MdRange<detail::transform_iterator<UnaryFunction, Iterator>> {
@@ -35,23 +34,25 @@ private:
 
         return ret;
     }
-
 };
 
+template <typename Function,
+          class MdRange_t,
+          std::enable_if_t<IsMdRange_v<MdRange_t>, bool> = true>
+inline CUDA_HOSTDEV auto make_transform_range(MdRange_t& rng, Function f) {
 
-template <typename Function, class MdRange_t>
-inline CUDA_HOSTDEV auto make_md_transform_range(MdRange_t& rng, Function f) {
-
-    using iterator = typename decltype(make_md_range(rng))::iterator;
+    using iterator = typename decltype(make_range(rng))::iterator;
 
     return MdTransformRange<Function, iterator>{
         md_begin(rng), md_end(rng), f, range_count(rng)};
 }
 
-template <typename Function, class MdRange_t>
-inline CUDA_HOSTDEV auto make_md_transform_range(const MdRange_t& rng,
-                                                 Function         f) {
-    using iterator = typename decltype(make_md_range(rng))::iterator;
+template <typename Function,
+          class MdRange_t,
+          std::enable_if_t<IsMdRange_v<MdRange_t>, bool> = true>
+inline CUDA_HOSTDEV auto make_transform_range(const MdRange_t& rng,
+                                              Function         f) {
+    using iterator = typename decltype(make_range(rng))::iterator;
 
     return MdTransformRange<Function, iterator>{
         md_begin(rng), md_end(rng), f, range_count(rng)};

@@ -90,37 +90,6 @@ template<typename T, typename = void>
 struct IsRange : std::false_type {};
 
 
-/*
-template <typename T>
-struct IsRange<T, std::void_t<
-    decltype(std::declval<T>().begin()),  // Check begin() is valid
-    decltype(std::declval<T>().end()),    // Check end() is valid
-    typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type, // Ensure iterator_traits works
-    typename std::iterator_traits<decltype(std::declval<T>().end())>::value_type
->> : std::bool_constant<
-    !std::is_base_of_v<
-        std::input_iterator_tag,
-        typename std::iterator_traits<typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type>::iterator_category // Check value type is not an iterator
-    >
-> {};
-*()
-
-*/
-
-/*
-template <typename T>
-struct IsRange<T, std::void_t<
-    decltype(std::declval<T>().begin()),  // Check if begin() exists
-    decltype(std::declval<T>().end()),    // Check if end() exists
-    typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type, // Ensure begin()'s value_type is valid
-    typename std::iterator_traits<decltype(std::declval<T>().end())>::value_type    // Ensure end()'s value_type is valid
->> : std::bool_constant<
-    IsIterator_v<decltype(std::declval<T>().begin())> &&  // Check if begin() is an iterator
-    IsIterator_v<decltype(std::declval<T>().end())> &&    // Check if end() is an iterator
-    !IsIterator_v<typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type> // Check if value_type is NOT an iterator
-> {};
-*/
-
 template <typename T>
 struct IsRange<T, std::void_t<
     decltype(std::declval<T>().begin()), // Check if begin() exists
@@ -132,14 +101,6 @@ struct IsRange<T, std::void_t<
     IsIterator_v<decltype(std::declval<T>().end())> &&    // end() is an iterator
     !IsRange<typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type>::value // Recursive: value_type is not a range
 > {};
-
-/*
-template<typename T>
-struct IsRange<T, std::void_t<
-    decltype(std::declval<T>().begin()),
-    decltype(std::declval<T>().end())
->> : public std::true_type{};
-*/
 
 
 template< typename T >

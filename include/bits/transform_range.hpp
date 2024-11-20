@@ -11,8 +11,6 @@ namespace topaz {
 
 namespace detail {
 
-
-
 #ifdef __NVIDIA_COMPILER__
 
 template <class Func, class Iter>
@@ -22,7 +20,6 @@ template <class Func, class Iter>
 inline CUDA_HOSTDEV auto make_transform_iterator(Iter it, Func f) {
     return thrust::make_transform_iterator(it, f);
 }
-
 
 #else
 
@@ -45,18 +42,14 @@ public:
         typename std::iterator_traits<Iter>::reference)>::type;
     using pointer    = void;
     using value_type = std::remove_reference_t<reference>;
-    //using value_type = reference;
+    // using value_type = reference;
 
     // using iterator_category = std::input_iterator_tag;
     using iterator_category = std::random_access_iterator_tag;
 
     using my_type = transform_iterator<Func, Iter>;
 
-
-    inline CUDA_HOSTDEV reference dereference() const {
-        return m_func(*m_it);
-    }
-
+    inline CUDA_HOSTDEV reference dereference() const { return m_func(*m_it); }
 
     inline CUDA_HOSTDEV bool operator==(const my_type& rhs) const {
         return m_it == rhs.m_it;
@@ -102,11 +95,9 @@ public:
         return *this;
     }
 
-
     inline CUDA_HOSTDEV auto operator[](difference_type i) const {
         return m_func(m_it[i]);
     }
-
 
     // auto& operator[](difference_type i) { return m_func(m_it[i]); }
 
@@ -136,9 +127,6 @@ inline CUDA_HOSTDEV transform_iterator<Func, Iter>
 #endif
 } // namespace detail
 
-
-
-
 template <typename UnaryFunction, typename Iterator>
 struct TransformRange
     : public Range<detail::transform_iterator<UnaryFunction, Iterator>> {
@@ -167,13 +155,17 @@ make_transform_range(Iterator first, Iterator last, Function f) {
     return TransformRange<Function, Iterator>(first, last, f);
 }
 
-template <typename Function, class Range_t>
+template <typename Function,
+          class Range_t,
+          std::enable_if_t<IsRange_v<Range_t>, bool> = true>
 inline CUDA_HOSTDEV auto make_transform_range(Range_t& rng, Function f) {
     using iterator = decltype(std::begin(rng));
     return TransformRange<Function, iterator>(rng, f);
 }
 
-template <typename Function, class Range_t>
+template <typename Function,
+          class Range_t,
+          std::enable_if_t<IsRange_v<Range_t>, bool> = true>
 inline CUDA_HOSTDEV auto make_transform_range(const Range_t& rng, Function f) {
     using iterator = decltype(std::begin(rng));
     return TransformRange<Function, iterator>(rng, f);

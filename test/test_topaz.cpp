@@ -889,14 +889,14 @@ TEST_CASE("Test MdRange"){
     //f(std::vector<std::vector<int>>{});
 
 
-    SECTION("make_md_range"){
+    SECTION("make_range"){
         Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
         //REQUIRE_NOTHROW(make_range(a1));
 
-        REQUIRE_NOTHROW(make_md_range(a1));
+        REQUIRE_NOTHROW(make_range(a1));
 
-        REQUIRE_NOTHROW(make_md_range(make_md_range(a1)));
+        REQUIRE_NOTHROW(make_range(make_range(a1)));
     }
 
     SECTION("range_count"){
@@ -907,8 +907,8 @@ TEST_CASE("Test MdRange"){
         CHECK(range_count(a1) == 2);
         CHECK(range_count(a2) == 3);
 
-        CHECK(range_count(make_md_range(a1)) == 2);
-        CHECK(range_count(make_md_range(a2)) == 3);
+        CHECK(range_count(make_range(a1)) == 2);
+        CHECK(range_count(make_range(a2)) == 3);
     }
 
     SECTION("md_size()"){
@@ -971,7 +971,7 @@ TEST_CASE("Test MdTransformRange"){
     /*
     SECTION("Test 1 "){
         Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
-        auto arr = make_md_transform_ranges(make_md_range(a1), Tester{});
+        auto arr = make_md_transform_ranges(make_range(a1), Tester{});
         auto& t1 = arr[0];
         for (size_t i = 0; i < t1.size(); ++i){
             t1[i];
@@ -985,13 +985,13 @@ TEST_CASE("Test MdTransformRange"){
     SECTION("Test 2 "){
         Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
-        auto rng = make_md_transform_range(a1, Tester{});
+        auto rng = make_transform_range(a1, Tester{});
 
 
         //auto tr = make_md_transform_range(a1, Tester{});
     }
 
-    SECTION("md_transform()")
+    SECTION("transform()")
     {
            const Array a1 = {NVec_t<int>{1,2,3}, NVec_t<int>{4,5}};
 
@@ -1000,14 +1000,14 @@ TEST_CASE("Test MdTransformRange"){
             
             auto op = PlusOne{};
 
-            auto s1 = md_transform(a1, op);
+            auto s1 = transform(a1, op);
 
             CHECK(std::vector<int>(s1[0].begin(), s1[0].end()) == std::vector<int>{2,3,4});
             CHECK(std::vector<int>(s1[1].begin(), s1[1].end()) == std::vector<int>{5,6});
 
             
-            auto s2 = md_transform(a1, op);
-            auto s3 = md_transform(s2, op);
+            auto s2 = transform(a1, op);
+            auto s3 = transform(s2, op);
 
             CHECK(std::vector<int>(s3[0].begin(), s3[0].end()) == std::vector<int>{3,4,5});
             CHECK(std::vector<int>(s3[1].begin(), s3[1].end()) == std::vector<int>{6,7});
@@ -1018,7 +1018,7 @@ TEST_CASE("Test MdTransformRange"){
         SECTION("binary"){
 
             SECTION("test 1"){
-                auto s = md_transform(a1, a1, Plus{});
+                auto s = transform(a1, a1, Plus{});
 
                 CHECK(std::vector<int>(s[0].begin(), s[0].end()) == std::vector<int>{2,4,6});
                 CHECK(std::vector<int>(s[1].begin(), s[1].end()) == std::vector<int>{8,10});
@@ -1027,7 +1027,7 @@ TEST_CASE("Test MdTransformRange"){
             SECTION("test 2"){
                 Array a2 = {NVec_t<int>{1,2}, NVec_t<int>{}};
                 Array a3 = {NVec_t<int>{4,5}, NVec_t<int>{}};
-                auto s = md_transform(a2, a3, Plus{});
+                auto s = transform(a2, a3, Plus{});
 
                 CHECK(std::vector<int>(s[0].begin(), s[0].end()) == std::vector<int>{5,7});
                 CHECK(std::vector<int>(s[1].begin(), s[1].end()) == std::vector<int>{});
@@ -1038,8 +1038,8 @@ TEST_CASE("Test MdTransformRange"){
                 const Array a2 = {NVec_t<int>{1,2}, NVec_t<int>{}};
                 const Array a3 = {NVec_t<int>{4,5}, NVec_t<int>{}};
 
-                auto s1 = md_transform(a2, a3, Plus{}); //{5,7}
-                auto s2 = md_transform(s1, a2, Plus{}); //{6,9}
+                auto s1 = transform(a2, a3, Plus{}); //{5,7}
+                auto s2 = transform(s1, a2, Plus{}); //{6,9}
                 CHECK(std::vector<int>(s2[0].begin(), s2[0].end()) == std::vector<int>{6,9});
                 CHECK(std::vector<int>(s2[1].begin(), s2[1].end()) == std::vector<int>{});
             }
@@ -1053,10 +1053,10 @@ TEST_CASE("Test MdTransformRange"){
             Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
 
-            auto zip = make_md_zip_range(a1, a2);
+            auto zip = make_zip_range(a1, a2);
 
 
-            auto rng2 = md_transform(zip, BinaryTester{});
+            auto rng2 = transform(zip, BinaryTester{});
 
 
             Array a3(a1);
@@ -1065,7 +1065,7 @@ TEST_CASE("Test MdTransformRange"){
             CHECK(a3[0] == NVec_t<int>{2, 6, 8});
             CHECK(a3[1] == NVec_t<int>{2, 4});
 
-            //auto rng2 = md_transform(a1, a2, std::plus<int>{});
+            //auto rng2 = transform(a1, a2, std::plus<int>{});
 
         }
         
@@ -1075,7 +1075,7 @@ TEST_CASE("Test MdTransformRange"){
             Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
 
-            auto rng2 = md_transform(a1, a2, std::plus<int>{});
+            auto rng2 = transform(a1, a2, std::plus<int>{});
 
             Array a3(a1);
             a3[0] = NVec_t<int>(rng2[0].begin(), rng2[0].end());
@@ -1147,11 +1147,11 @@ TEST_CASE("Test MdZipRange"){
     
 
 
-    SECTION("make_md_zip_range"){
+    SECTION("make_zip_range"){
 
         Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
-        auto z = make_md_zip_range(a1, a1);
+        auto z = make_zip_range(a1, a1);
     }
 }
 

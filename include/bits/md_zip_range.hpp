@@ -29,8 +29,9 @@ private:
     }
 };
 
-template <typename MdRange1_t, typename MdRange2_t>
-inline CUDA_HOSTDEV auto make_md_zip_range(MdRange1_t& rng1, MdRange2_t& rng2) {
+template <typename MdRange1_t, typename MdRange2_t, 
+std::enable_if_t<BothAreMdRanges_v<MdRange1_t, MdRange2_t>, bool> = true>
+inline CUDA_HOSTDEV auto make_zip_range(MdRange1_t& rng1, MdRange2_t& rng2) {
 
     auto firsts1 = md_begin(rng1);
     auto firsts2 = md_begin(rng2);
@@ -56,8 +57,9 @@ inline CUDA_HOSTDEV auto make_md_zip_range(MdRange1_t& rng1, MdRange2_t& rng2) {
     return MdZipRange<tuple_t>(firsts, lasts, count);
 }
 
-template <typename MdRange1_t, typename MdRange2_t>
-inline CUDA_HOSTDEV auto make_md_zip_range(MdRange1_t&       rng1,
+template <typename MdRange1_t, typename MdRange2_t, 
+std::enable_if_t<BothAreMdRanges_v<MdRange1_t, MdRange2_t>, bool> = true>
+inline CUDA_HOSTDEV auto make_zip_range(MdRange1_t&       rng1,
                                            const MdRange2_t& rng2) {
 
     auto firsts1 = md_begin(rng1);
@@ -84,8 +86,9 @@ inline CUDA_HOSTDEV auto make_md_zip_range(MdRange1_t&       rng1,
     return MdZipRange<tuple_t>(firsts, lasts, count);
 }
 
-template <typename MdRange1_t, typename MdRange2_t>
-inline CUDA_HOSTDEV auto make_md_zip_range(const MdRange1_t& rng1,
+template <typename MdRange1_t, typename MdRange2_t, 
+std::enable_if_t<BothAreMdRanges_v<MdRange1_t, MdRange2_t>, bool> = true>
+inline CUDA_HOSTDEV auto make_zip_range(const MdRange1_t& rng1,
                                            MdRange2_t&       rng2) {
 
     auto firsts1 = md_begin(rng1);
@@ -112,8 +115,9 @@ inline CUDA_HOSTDEV auto make_md_zip_range(const MdRange1_t& rng1,
     return MdZipRange<tuple_t>(firsts, lasts, count);
 }
 
-template <typename MdRange1_t, typename MdRange2_t>
-inline CUDA_HOSTDEV auto make_md_zip_range(const MdRange1_t& rng1,
+template <typename MdRange1_t, typename MdRange2_t, 
+std::enable_if_t<BothAreMdRanges_v<MdRange1_t, MdRange2_t>, bool> = true>
+inline CUDA_HOSTDEV auto make_zip_range(const MdRange1_t& rng1,
                                            const MdRange2_t& rng2) {
 
     auto firsts1 = md_begin(rng1);

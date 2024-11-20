@@ -19,32 +19,22 @@ inline CUDA_HOSTDEV auto zip(const Range_t& rng) {
     return result_type(adl_make_tuple(rng));
 }
 
-
-template <class T1,
-          class T2,
-          std::enable_if_t<BothAreRanges_v<T1, T2>, bool> = true>
+template <class T1, class T2>
 inline CUDA_HOSTDEV auto zip(T1& rng1, T2& rng2) {
     return make_zip_range(rng1, rng2);
 }
 
-template <class T1,
-          class T2,
-          std::enable_if_t<BothAreRanges_v<T1, T2>, bool> = true>
+template <class T1, class T2>
 inline CUDA_HOSTDEV auto zip(T1& rng1, const T2& rng2) {
     return make_zip_range(rng1, rng2);
 }
 
-template <class T1,
-          class T2,
-          std::enable_if_t<BothAreRanges_v<T1, T2>, bool> = true>
+template <class T1, class T2>
 inline CUDA_HOSTDEV auto zip(const T1& rng1, T2& rng2) {
     return make_zip_range(rng1, rng2);
 }
 
-
-template <class T1,
-          class T2,
-          std::enable_if_t<BothAreRanges_v<T1, T2>, bool> = true>
+template <class T1, class T2>
 inline CUDA_HOSTDEV auto zip(const T1& rng1, const T2& rng2) {
     return make_zip_range(rng1, rng2);
 }
