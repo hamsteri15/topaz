@@ -89,11 +89,44 @@ constexpr bool IsNumericVector_v = IsNumericVector<T>::value;
 template<typename T, typename = void>
 struct IsRange : std::false_type {};
 
+
+/*
+template <typename T>
+struct IsRange<T, std::void_t<
+    decltype(std::declval<T>().begin()),  // Check begin() is valid
+    decltype(std::declval<T>().end()),    // Check end() is valid
+    typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type, // Ensure iterator_traits works
+    typename std::iterator_traits<decltype(std::declval<T>().end())>::value_type
+>> : std::bool_constant<
+    !std::is_base_of_v<
+        std::input_iterator_tag,
+        typename std::iterator_traits<typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type>::iterator_category // Check value type is not an iterator
+    >
+> {};
+*()
+
+*/
+
+template <typename T>
+struct IsRange<T, std::void_t<
+    decltype(std::declval<T>().begin()),  // Check if begin() exists
+    decltype(std::declval<T>().end()),    // Check if end() exists
+    typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type, // Ensure begin()'s value_type is valid
+    typename std::iterator_traits<decltype(std::declval<T>().end())>::value_type    // Ensure end()'s value_type is valid
+>> : std::bool_constant<
+    IsIterator_v<decltype(std::declval<T>().begin())> &&  // Check if begin() is an iterator
+    IsIterator_v<decltype(std::declval<T>().end())> &&    // Check if end() is an iterator
+    !IsIterator_v<typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type> // Check if value_type is NOT an iterator
+> {};
+
+
+/*
 template<typename T>
 struct IsRange<T, std::void_t<
     decltype(std::declval<T>().begin()),
     decltype(std::declval<T>().end())
 >> : public std::true_type{};
+*/
 
 
 template< typename T >
@@ -188,8 +221,6 @@ constexpr bool SupportsBinaryExpression_v = SupportsBinaryExpression<T1,T2>::val
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-
-
 template< typename T1, typename T2, typename = void >
 struct AtleastOneIsRange
    : public std::false_type {};
@@ -201,6 +232,17 @@ struct AtleastOneIsRange<T1, T2, std::enable_if_t<IsRange_v<T1>||IsRange_v<T2>>>
 template< typename T1, typename T2 >
 constexpr bool AtleastOneIsRange_v = AtleastOneIsRange<T1,T2>::value;
 
+///////////////////////////////////////////////////////////////////////////////////
+
+
+template <typename T1, typename T2>
+struct BothAreRanges : std::bool_constant<IsRange_v<T1> && IsRange_v<T2>> {};
+
+
+template <typename T1, typename T2>
+inline constexpr bool BothAreRanges_v = BothAreRanges<T1, T2>::value;
+
+///////////////////////////////////////////////////////////////////////////////////
 
 
 

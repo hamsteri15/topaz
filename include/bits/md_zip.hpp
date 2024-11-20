@@ -2,6 +2,7 @@
 
 #include "md_zip_range.hpp"
 #include "traits.hpp"
+#include "md_traits.hpp"
 
 namespace topaz {
 
@@ -21,6 +22,7 @@ inline CUDA_HOSTDEV auto md_zip(const MdRange_t& rng) {
 }
 */
 
+/*
 template <class MdRange1_t, class MdRange2_t>
 inline CUDA_HOSTDEV auto md_zip(MdRange1_t& rng1, MdRange2_t& rng2) {
     return make_md_zip_range(rng1, rng2);
@@ -35,10 +37,14 @@ template <class MdRange1_t, class MdRange2_t>
 inline CUDA_HOSTDEV auto md_zip(const MdRange1_t& rng1, MdRange2_t& rng2) {
     return make_md_zip_range(rng1, rng2);
 }
+*/
+
 
 template <class MdRange1_t, class MdRange2_t>
 inline CUDA_HOSTDEV auto md_zip(const MdRange1_t& rng1,
                                 const MdRange2_t& rng2) {
     return make_md_zip_range(rng1, rng2);
 }
+
+
 } // namespace topaz

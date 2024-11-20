@@ -123,6 +123,14 @@ constexpr bool AtleastOneIsMdRange_v = AtleastOneIsMdRange<T1,T2>::value;
 
 
 
+template <typename T1, typename T2>
+struct BothAreMdRanges : std::bool_constant<IsMdRange_v<T1> && IsMdRange_v<T2>> {};
+
+
+template <typename T1, typename T2>
+inline constexpr bool BothAreMdRanges_v = BothAreMdRanges<T1, T2>::value;
+
+///////////////////////////////////////////////////////////////////////////////////
 
 
 
