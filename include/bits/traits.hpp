@@ -26,6 +26,17 @@ static constexpr bool IsMathematical_v = IsMathematical<T>::value;
 ///////////////////////////////////////////////////////////////////////////////////
 
 
+template <typename T1, typename T2, typename = void>
+struct IsValueTypeOf : std::false_type {};
+
+template <typename T1, typename T2>
+struct IsValueTypeOf<T1, T2, std::void_t<typename T1::value_type>> 
+    : std::is_same<typename T1::value_type, T2> {};
+
+template <typename T1, typename T2>
+inline constexpr bool IsValueTypeOf_v = IsValueTypeOf<T1, T2>::value;
+
+///////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
 struct IsScalar : std::is_arithmetic<T> {};

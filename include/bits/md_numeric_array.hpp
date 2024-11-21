@@ -32,6 +32,7 @@ struct MdNumericArray {
 
     const auto& boundaryField() const { return m_boundary; }
 
+
 private:
     NumericArray<T, Allocator>              m_internal;
     std::vector<NumericArray<T, Allocator>> m_boundary;
@@ -149,10 +150,43 @@ CUDA_HOSTDEV auto md_size(const MdNumericArray<T, Allocator>& a) {
     return ret;
 }
 
-template <class T, class Allocator>
-struct SupportsBinaryExpression<MdNumericArray<T, Allocator>,
-                                MdNumericArray<T, Allocator>> : std::true_type {
-};
+
+
+template <class T1,
+          class T2,
+          std::enable_if_t<SupportsMdBinaryExpression_v<T1, T2>, bool> = true>
+inline CUDA_HOSTDEV auto operator+(const T1& lhs, const T2& rhs) {
+
+    return smart_transform(lhs, rhs, Plus{});
+}
+
+template <class T1,
+          class T2,
+          std::enable_if_t<SupportsMdBinaryExpression_v<T1, T2>, bool> = true>
+inline CUDA_HOSTDEV auto operator-(const T1& lhs, const T2& rhs) {
+
+    return smart_transform(lhs, rhs, Minus{});
+}
+
+template <class T1,
+          class T2,
+          std::enable_if_t<SupportsMdBinaryExpression_v<T1, T2>, bool> = true>
+inline CUDA_HOSTDEV auto operator*(const T1& lhs, const T2& rhs) {
+
+    return smart_transform(lhs, rhs, Multiplies{});
+}
+
+template <class T1,
+          class T2,
+          std::enable_if_t<SupportsMdBinaryExpression_v<T1, T2>, bool> = true>
+inline CUDA_HOSTDEV auto operator/(const T1& lhs, const T2& rhs) {
+
+    return smart_transform(lhs, rhs, Divides{});
+}
+
+
+
+
 
 
 } // namespace topaz

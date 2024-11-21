@@ -1166,29 +1166,15 @@ TEST_CASE("Test MdNumericArray"){
 
     using MDVec_t = MDArray_t<int>;
 
-    MDVec_t a1(NVec_t<int>{3,3}, {NVec_t<int>{3,3,3}, NVec_t<int>{}});
-    MDVec_t a2(NVec_t<int>{3,3}, {NVec_t<int>{3,3,3}, NVec_t<int>{}});
+    MDVec_t a1(NVec_t<int>{3,3}, {NVec_t<int>{1,2,3}, NVec_t<int>{}});
+    MDVec_t a2(NVec_t<int>{3,3}, {NVec_t<int>{4,5,6}, NVec_t<int>{}});
 
     CHECK(range_count(a1) == 3);
 
-    auto rng = a1 + a2;
-    CHECK(std::vector<int>(rng[0].begin(), rng[0].end()) == std::vector<int>{6,6});
 
-    /*
-    auto rng = md_smart_transform(a1, a2, std::plus<int>{});
-
-
-    CHECK(SupportsBinaryExpression_v<MDVec_t, MDVec_t> == false);
-    CHECK(IsNumericVector_v<MDVec_t> == false);
-    CHECK(IsRange_v<MDVec_t> == false);
-    CHECK(IsScalar_v<MDVec_t> == false);
-    CHECK(IsRangeOrNumericArray_v<MDVec_t> == false);
-    CHECK(BothRangesOrNumericArrays_v<MDVec_t, MDVec_t> == false);
-
-    */
-    //CHECK(SupportsBinaryExpression_v<MDVec_t, MDVec_t> == false);
-
-    //auto r3 = a1 + a2;
+    auto rng =  a1 + a1 + a2;
+    CHECK(std::vector<int>(rng[0].begin(), rng[0].end()) == std::vector<int>{3 + 3 + 3, 3 + 3 + 3});
+    CHECK(std::vector<int>(rng[1].begin(), rng[1].end()) == std::vector<int>{1 + 1 + 4, 2 + 2 + 5, 3 + 3 + 6});
 
 
 }
