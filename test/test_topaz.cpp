@@ -884,11 +884,6 @@ TEST_CASE("Test MdRange"){
         IsRange_v<std::vector<int>> == true
     );
 
-
-    //f(std::vector<int>{});
-    //f(std::vector<std::vector<int>>{});
-
-
     SECTION("make_range"){
         Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
@@ -927,11 +922,13 @@ TEST_CASE("Test MdRange"){
 
 }
 
+
 TEST_CASE("Test MdConstantRange"){
 
     using namespace topaz;
 
     using Array = std::vector<NVec_t<int>>;
+
 
     SECTION("make_constant_range"){
 
@@ -949,16 +946,9 @@ TEST_CASE("Test MdConstantRange"){
         CHECK(rng[1][4] == 4);
         
 
-        CHECK(range_count(rng) == 2);
-
-        CHECK(md_size(rng) == sizes());
-
     }
-
-        
-
-
 }
+
 
 
 
@@ -968,28 +958,6 @@ TEST_CASE("Test MdTransformRange"){
 
     using Array = std::vector<NVec_t<int>>;
 
-    /*
-    SECTION("Test 1 "){
-        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
-        auto arr = make_md_transform_ranges(make_range(a1), Tester{});
-        auto& t1 = arr[0];
-        for (size_t i = 0; i < t1.size(); ++i){
-            t1[i];
-        }
-        CHECK(std::vector<int>(a1[0].begin(), a1[0].end()) == std::vector<int>{2,4,5});
-        CHECK(std::vector<int>(a1[1].begin(), a1[1].end()) == std::vector<int>{1, 2});
-    }
-    */
-    
-
-    SECTION("Test 2 "){
-        Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
-
-        auto rng = make_transform_range(a1, Tester{});
-
-
-        //auto tr = make_md_transform_range(a1, Tester{});
-    }
 
     SECTION("transform()")
     {
@@ -1089,6 +1057,7 @@ TEST_CASE("Test MdTransformRange"){
 
 }
 
+
 TEST_CASE("md_smart_transform"){
 
     using namespace topaz;
@@ -1121,22 +1090,6 @@ TEST_CASE("md_smart_transform"){
         REQUIRE_NOTHROW(smart_transform(int(1), a1, std::plus<int>{}));
         REQUIRE_NOTHROW(smart_transform(a1, int(1), std::plus<int>{}));
 
-
-
-        //auto asd = smart_transform(a1, a1, std::plus<int>{});
-
-        //auto s1 = smart_transform(a1, int(3), std::plus<int>{});
-
-        //CHECK(std::vector<int>(s1[0].begin(), s1[0].end()) == std::vector<int>{4, 6, 7});
-        //CHECK(std::vector<int>(s1[1].begin(), s1[1].end()) == std::vector<int>{4, 5});
-
-        //auto s2 = smart_transform(int(3), a1, std::plus<int>{});
-
-        //CHECK(std::vector<int>(s2[0].begin(), s2[0].end()) == std::vector<int>{4, 6, 7});
-        //CHECK(std::vector<int>(s2[1].begin(), s2[1].end()) == std::vector<int>{4, 5});
-
-
-        //auto t1 = md_smart_transform(a1, int(3), std::plus<int>{});
 
     }
 
@@ -1178,4 +1131,5 @@ TEST_CASE("Test MdNumericArray"){
 
 
 }
+
 

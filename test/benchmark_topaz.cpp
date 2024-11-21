@@ -77,3 +77,31 @@ TEST_CASE("Benchmark NumericArray"){
     }
 
 }
+
+/*
+TEST_CASE("Benchmark MdNumericArray"){
+
+    using namespace topaz;
+
+    
+    SECTION("Arithmetic1"){
+
+
+        auto do_benchmark = [] (size_t n){
+            NVec_t<float> x(n, float(3234.32));
+            NVec_t<float> y(n, float(-31131.444444));
+            NVec_t<float> z(n, float(-31131.444444));
+            std::string name = "Arithmetic1 n = " + std::to_string(n);
+            BENCHMARK(name.c_str()) {
+                return arithmetic1(x,y,z);
+            };
+        };
+
+        do_benchmark(10);
+        do_benchmark(100);
+        do_benchmark(1000);
+        //do_benchmark(1E5);
+    }
+
+}
+*/

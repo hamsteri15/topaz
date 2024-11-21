@@ -12,7 +12,7 @@ private:
     using iterator        = constant_iterator<Value>;
     using parent          = MdRange<constant_iterator<Value>>;
     using value_type      = typename parent::value_type;
-    using difference_type = typename parent::difference_type;
+    using difference_type = std::ptrdiff_t; //typename parent::difference_type;
 
 public:
     inline CUDA_HOSTDEV MdConstantRange(
@@ -32,9 +32,9 @@ private:
 };
 
 
-template <typename Value, typename Size>
+template <typename Value, typename Count, typename Size>
 inline CUDA_HOSTDEV auto
-make_constant_range(Value c, size_t count, const small_array<Size>& sizes) {
+make_constant_range(Value c, Count count, const small_array<Size>& sizes) {
 
     return MdConstantRange<Value>(c, count, sizes);
 }
