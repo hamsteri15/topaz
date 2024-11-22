@@ -6,11 +6,19 @@
 #ifdef __NVIDIA_COMPILER__
 #include <thrust/device_vector.h>
 #include <thrust/device_malloc_allocator.h>
+#include <thrust/host_vector.h>
+#include <thrust/sort.h>
 template<class T>
 using vector_t = thrust::device_vector<T>;
 
 template<class T>
 using NVec_t = topaz::NumericArray<T, thrust::device_malloc_allocator<T>>;
+
+namespace alglib = thrust;
+
+
+template<class T>
+using MDArray_t = topaz::MdNumericArray<T, thrust::device_malloc_allocator<T>>;
 
 #else
 #include <vector>
@@ -19,8 +27,14 @@ using vector_t = std::vector<T>;
 
 template<class T>
 using NVec_t = topaz::NumericArray<T, std::allocator<T>>;
-#endif
 
+namespace alglib = std;
+
+template<class T>
+using MDArray_t = topaz::MdNumericArray<T, std::allocator<T>>;
+
+
+#endif
 
 template<class Scalar_t, class Vector_t>
 Vector_t nxpy(const Scalar_t& s, const Vector_t& x, const Vector_t& y){
@@ -78,7 +92,7 @@ TEST_CASE("Benchmark NumericArray"){
 
 }
 
-/*
+
 TEST_CASE("Benchmark MdNumericArray"){
 
     using namespace topaz;
@@ -86,8 +100,8 @@ TEST_CASE("Benchmark MdNumericArray"){
     
     SECTION("Arithmetic1"){
 
-
-        auto do_benchmark = [] (size_t n){
+        /*
+        auto do_benchmark = [] (size_t size_i, size_t n){
             NVec_t<float> x(n, float(3234.32));
             NVec_t<float> y(n, float(-31131.444444));
             NVec_t<float> z(n, float(-31131.444444));
@@ -101,7 +115,7 @@ TEST_CASE("Benchmark MdNumericArray"){
         do_benchmark(100);
         do_benchmark(1000);
         //do_benchmark(1E5);
+        */
     }
 
 }
-*/

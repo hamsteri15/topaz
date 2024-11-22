@@ -38,6 +38,22 @@ inline constexpr bool IsValueTypeOf_v = IsValueTypeOf<T1, T2>::value;
 
 ///////////////////////////////////////////////////////////////////////////////////
 
+
+// Primary template: default to false
+template <typename T1, typename T2, typename = void>
+struct ValueTypeIs : std::false_type {};
+
+// Specialization: Check if T1 has a value_type that matches T2
+template <typename T1, typename T2>
+struct ValueTypeIs<T1, T2, std::void_t<typename T1::value_type>> 
+    : std::is_same<typename T1::value_type, T2> {};
+
+// Helper variable template for convenience
+template <typename T1, typename T2>
+inline constexpr bool ValueTypeIs_v = ValueTypeIs<T1, T2>::value;
+
+///////////////////////////////////////////////////////////////////////////////////
+
 template<typename T>
 struct IsScalar : std::is_arithmetic<T> {};
 
@@ -45,6 +61,10 @@ template<typename T>
 static constexpr bool IsScalar_v = IsScalar<T>::value;
 
 ///////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
 template <typename T, typename = void>
 struct IsIterator : public std::false_type {};
@@ -73,11 +93,9 @@ struct IsMathematicalIterator<T, std::void_t<
 template<typename T>
 constexpr bool IsMathematicalIterator_v = IsMathematicalIterator<T>::value;
 
+
+
 ///////////////////////////////////////////////////////////////////////////////////
-
-
-
-
 
 
 
@@ -100,6 +118,11 @@ constexpr bool IsNumericVector_v = IsNumericVector<T>::value;
 template<typename T, typename = void>
 struct IsRange : std::false_type {};
 
+/*
+template<typename T>
+struct IsRange<T, std::enable_if_t< T::is_range >>
+: public std::true_type {};
+*/
 
 template <typename T>
 struct IsRange<T, std::void_t<
@@ -112,6 +135,7 @@ struct IsRange<T, std::void_t<
     IsIterator_v<decltype(std::declval<T>().end())> &&    // end() is an iterator
     !IsRange<typename std::iterator_traits<decltype(std::declval<T>().begin())>::value_type>::value // Recursive: value_type is not a range
 > {};
+
 
 
 template< typename T >

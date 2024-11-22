@@ -12,6 +12,7 @@
 #endif
 #include "bits/begin_end.hpp"
 #include "bits/traits.hpp"
+#include "bits/copy.hpp"
 #include "bits/range.hpp"
 #include "bits/zip_range.hpp"
 #include "bits/zip.hpp"
