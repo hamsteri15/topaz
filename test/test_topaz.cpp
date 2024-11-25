@@ -3,6 +3,8 @@
 #include "catch.hpp"
 
 #include "topaz.hpp"
+#include "bits/arithmetic_ops.hpp"
+#include "bits/md_numeric_array.hpp"
 #include <iostream>
 
 #ifdef __NVIDIA_COMPILER__
@@ -878,7 +880,7 @@ TEST_CASE("Test MdRange"){
     (
         IsRange_v<std::vector<std::vector<int>>> == false
     );
-    
+
     CHECK
     (
         IsRange_v<std::vector<int>> == true
@@ -944,7 +946,7 @@ TEST_CASE("Test MdConstantRange"){
         CHECK(rng[0][0] == 4);
         CHECK(rng[1][0] == 4);
         CHECK(rng[1][4] == 4);
-        
+
 
     }
 }
@@ -964,8 +966,8 @@ TEST_CASE("Test MdTransformRange"){
            const Array a1 = {NVec_t<int>{1,2,3}, NVec_t<int>{4,5}};
 
         SECTION("unary"){
-            
-            
+
+
             auto op = PlusOne{};
 
             auto s1 = transform(a1, op);
@@ -973,16 +975,16 @@ TEST_CASE("Test MdTransformRange"){
             CHECK(std::vector<int>(s1[0].begin(), s1[0].end()) == std::vector<int>{2,3,4});
             CHECK(std::vector<int>(s1[1].begin(), s1[1].end()) == std::vector<int>{5,6});
 
-            
+
             auto s2 = transform(a1, op);
             auto s3 = transform(s2, op);
 
             CHECK(std::vector<int>(s3[0].begin(), s3[0].end()) == std::vector<int>{3,4,5});
             CHECK(std::vector<int>(s3[1].begin(), s3[1].end()) == std::vector<int>{6,7});
-            
+
 
         }
-        
+
         SECTION("binary"){
 
             SECTION("test 1"){
@@ -1036,7 +1038,7 @@ TEST_CASE("Test MdTransformRange"){
             //auto rng2 = transform(a1, a2, std::plus<int>{});
 
         }
-        
+
         SECTION("md_transform2"){
 
             Array a1 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
@@ -1052,7 +1054,7 @@ TEST_CASE("Test MdTransformRange"){
             CHECK(a3[1] == NVec_t<int>{2, 4});
 
         }
-        
+
     }
 
 }
@@ -1069,7 +1071,7 @@ TEST_CASE("md_smart_transform"){
     //Array a2 = {NVec_t<int>{1,3,4}, NVec_t<int>{1,2}};
 
     SECTION("md_determine_size"){
-        
+
         CHECK(md_determine_size(a1, int(4)) == md_size(a1));
         CHECK(md_determine_size(int(4), a1) == md_size(a1));
         //CHECK(md_determine_size(a1, a1) == md_size(a1));
@@ -1077,7 +1079,7 @@ TEST_CASE("md_smart_transform"){
     }
 
     SECTION("md_determine_range_count"){
-        
+
         CHECK(md_determine_range_count(a1, int(4)) == 2);
         CHECK(md_determine_range_count(int(4), a1) == 2);
         //CHECK(md_determine_size(a1, a1) == md_size(a1));
@@ -1102,7 +1104,7 @@ TEST_CASE("md_smart_transform"){
 TEST_CASE("Test MdZipRange"){
     using namespace topaz;
     using Array = std::vector<NVec_t<int>>;
-    
+
 
 
     SECTION("make_zip_range"){

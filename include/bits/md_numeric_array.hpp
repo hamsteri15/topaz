@@ -3,6 +3,7 @@
 #include "md_range.hpp"
 #include "md_traits.hpp"
 #include "numeric_array.hpp"
+#include "arithmetic_ops.hpp"
 
 namespace topaz {
 

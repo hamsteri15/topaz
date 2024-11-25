@@ -18,7 +18,8 @@
 #include "bits/zip.hpp"
 #include "bits/transform.hpp"
 #include "bits/numeric_array.hpp"
-#include "bits/arithmetic_ops.hpp"
+#include "bits/smart_transform.hpp"
+//#include "bits/arithmetic_ops.hpp"
 #include "bits/parallel_force_evaluate.hpp"
 #include "bits/md_range.hpp"
 #include "bits/md_transform_range.hpp"
@@ -27,7 +28,7 @@
 #include "bits/md_constant_range.hpp"
 #include "bits/md_smart_transform.hpp"
 #include "bits/md_traits.hpp"
-#include "bits/md_numeric_array.hpp"
+//#include "bits/md_numeric_array.hpp"
 
 #ifdef __NVIDIA_COMPILER__
 #include "bits/device_host_copy.hpp"
