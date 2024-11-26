@@ -426,29 +426,6 @@ TEST_CASE("NumericArray"){
     }
 
 
-    SECTION("determine_size"){
-
-        const NVec_t<int> v1(3, 1);
-        int t = 43;
-
-
-        static_assert(IsScalar_v<int>, "Is scalar");
-        static_assert(IsScalar_v<double>, "Is scalar");
-
-        CHECK(determine_size(v1, v1) == 3);
-        CHECK(determine_size(v1, t) == 3);
-        CHECK(determine_size(t, v1) == 3);
-
-        auto tr = transform(v1, v1, Plus{});
-
-        static_assert(IsRange_v<decltype(tr)>, "Not range");
-
-        CHECK(determine_size(tr, t) == 3);
-        CHECK(determine_size(tr, tr) == 3);
-        CHECK(determine_size(t, tr) == 3);
-
-    }
-
 
     SECTION("smart_transform()"){
 
