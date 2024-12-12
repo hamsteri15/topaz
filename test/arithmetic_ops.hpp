@@ -2,9 +2,8 @@
 
 //#include <cmath>
 #include <math.h>
-#include "range.hpp"
-#include "smart_transform.hpp"
-#include "traits.hpp"
+#include "bits/smart_transform.hpp"
+#include "bits/traits.hpp"
 
 namespace topaz {
 
@@ -188,9 +187,9 @@ inline CUDA_HOSTDEV auto min(const T1& lhs, const T2& rhs) {
     return smart_transform(lhs, rhs, Min{});
 }
 
-template <class T, 
+template <class T,
           class Scalar_t,
-          std::enable_if_t<IsRangeOrNumericArray_v<T> && IsScalar_v<Scalar_t>, bool> = true> 
+          std::enable_if_t<IsRangeOrNumericArray_v<T> && IsScalar_v<Scalar_t>, bool> = true>
 inline CUDA_HOSTDEV auto pow(const T& t, Scalar_t power) {
     return smart_transform(t, power, Pow{});
 }

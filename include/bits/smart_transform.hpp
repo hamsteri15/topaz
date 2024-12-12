@@ -3,6 +3,7 @@
 #include "constant_range.hpp"
 #include "range.hpp"
 #include "traits.hpp"
+#include "transform.hpp"
 namespace topaz {
 
 template <class T1,

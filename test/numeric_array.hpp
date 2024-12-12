@@ -1,9 +1,9 @@
 #pragma once
 
-#include "constant_range.hpp"
-#include "range.hpp"
-#include "traits.hpp"
-#include "transform.hpp"
+#include "bits/constant_range.hpp"
+#include "bits/range.hpp"
+#include "bits/traits.hpp"
+#include "bits/transform.hpp"
 
 #ifdef __NVIDIA_COMPILER__
 #include <thrust/detail/vector_base.h>

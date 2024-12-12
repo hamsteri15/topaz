@@ -3,6 +3,7 @@
 #include "md_traits.hpp"
 #include "md_range.hpp"
 #include "md_constant_range.hpp"
+#include "transform.hpp"
 namespace topaz{
 
 
@@ -81,7 +82,7 @@ inline CUDA_HOSTDEV auto md_rangify(const Scalar& s, const small_array<Size>& si
 template <class T1, class T2, class BinaryOp>
 inline CUDA_HOSTDEV auto
 md_smart_transform(const T1& lhs, const T2& rhs, BinaryOp f) {
-    
+
     const auto size = md_determine_size(lhs, rhs);
     const auto count = md_determine_range_count(lhs, rhs);
     return md_transform(md_rangify(lhs, size, count), md_rangify(rhs, size, count), f);
@@ -98,7 +99,7 @@ smart_transform(const T1& lhs, const T2& rhs, BinaryOp f) {
 
     if constexpr (BothAreMdRanges_v<T1, T2>)
     {
-        return transform(lhs, rhs, f); 
+        return transform(lhs, rhs, f);
     }
     else if constexpr (IsMdRange_v<T1>)
     {
@@ -109,9 +110,9 @@ smart_transform(const T1& lhs, const T2& rhs, BinaryOp f) {
     else {
         auto count = range_count(rhs);
         auto sizes = md_size(rhs);
-        return transform(make_constant_range(lhs, count, sizes), rhs, f); 
+        return transform(make_constant_range(lhs, count, sizes), rhs, f);
     }
-    
+
 
 
 }

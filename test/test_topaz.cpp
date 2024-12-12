@@ -3,8 +3,11 @@
 #include "catch.hpp"
 
 #include "topaz.hpp"
-#include "bits/arithmetic_ops.hpp"
-#include "bits/md_numeric_array.hpp"
+#include "bits/transform.hpp"
+#include "bits/md_smart_transform.hpp"
+#include "arithmetic_ops.hpp"
+#include "numeric_array.hpp"
+#include "md_numeric_array.hpp"
 #include <iostream>
 
 #ifdef __NVIDIA_COMPILER__
