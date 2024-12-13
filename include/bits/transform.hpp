@@ -27,12 +27,12 @@ struct Transform {
 
     template <class Range_t, class UnaryOp>
     inline CUDA_HOSTDEV auto operator()(Range_t& rng, UnaryOp f) const {
-        return topaz::make_transform_range(rng, f);
+        return make_transform_range(rng, f);
     }
 
     template <class Range_t, class UnaryOp>
     inline CUDA_HOSTDEV auto operator()(const Range_t& rng, UnaryOp f) const {
-        return topaz::make_transform_range(rng, f);
+        return make_transform_range(rng, f);
     }
 
     template <class Range1_t, class Range2_t, class BinaryOp>

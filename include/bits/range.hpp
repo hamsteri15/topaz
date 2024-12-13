@@ -1,7 +1,7 @@
 #pragma once
 
 #include "begin_end.hpp"
-
+#include "traits.hpp"
 
 namespace topaz {
 

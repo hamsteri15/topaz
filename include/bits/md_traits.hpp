@@ -1,13 +1,15 @@
 #pragma once
 
-
 #include <type_traits>
 #include <iterator>
+
+#include "traits.hpp"
+
 
 namespace topaz {
 
 template<class T, typename = void>
-struct IsMdRange : public std::false_type{}; 
+struct IsMdRange : public std::false_type{};
 
 
 template<typename T>

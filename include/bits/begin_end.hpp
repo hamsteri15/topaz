@@ -1,5 +1,6 @@
 #pragma once
 
+#include "compiler_primitives.hpp"
 
 namespace topaz {
 
