@@ -11,14 +11,14 @@ namespace topaz {
 template<class T, typename = void>
 struct IsMdRange : public std::false_type{};
 
-
+/*
 template<typename T>
 struct IsMdRange<T, std::void_t<
     decltype(range_count(std::declval<T>())),
     decltype(md_begin(std::declval<T>())),
     decltype(md_end(std::declval<T>()))
 >> : public std::true_type{};
-
+*/
 
 
 template<typename T>
