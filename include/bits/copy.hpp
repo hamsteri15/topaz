@@ -16,7 +16,7 @@ namespace topaz {
 
 template <class Range1_t, class Range2_t>
 void copy(const Range1_t& src, Range2_t& dst) {
-    thrust::copy(src.begin(), src.end(), dst.begin());
+    thrust::copy(thrust::device, src.begin(), src.end(), dst.begin());
 }
 
 #else
